@@ -1,0 +1,13 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "lib": [
+            "DOM",
+            "ES2019"
+        ]
+    },
+    "include": [
+        "src"
+    ]
+}

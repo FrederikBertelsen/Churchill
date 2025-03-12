@@ -1,0 +1,12 @@
+{
+    "name": "@logit/client",
+    "version": "0.1.0",
+    "main": "dist/index.js",
+    "module": "dist/index.esm.js",
+    "unpkg": "dist/logit.min.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "esbuild src/index.ts --bundle --minify --outfile=dist/logit.min.js && tsc",
+        "dev": "esbuild src/index.ts --bundle --watch --outfile=dist/logit.js"
+    }
+}
