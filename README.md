@@ -11,26 +11,25 @@ LogIT will consist of two main components:
 ```
 /LogIT/
 ├── packages/
-│   ├── client/           # Browser client library
+│   ├── client/                # Browser client library
 │   │   ├── src/
-│   │   │   ├── index.js  # Main entry point
-│   │   │   ├── logger.js # Core logging functionality
-│   │   │   └── transport.js # HTTP transport
-│   │   ├── dist/         # Built files for distribution
+│   │   │   ├── index.js       # Main entry point
+│   │   │   ├── logger.js      # Core logging functionality
+│   │   │   └── transport.js   # HTTP transport
+│   │   ├── dist/              # Built files for distribution
 │   │   │   ├── logger.min.js  # For CDN/script tag
 │   │   │   └── logger.esm.js  # For bundlers/ES modules
 │   │   └── package.json
 │   │
-│   └── server/           # Node.js server component
+│   └── server/                # Node.js server component
 │       ├── src/
-│       │   ├── index.js    # Main entry point
-│       │   ├── logger.js   # Core logging functionality
-│       │   ├── receiver.js # HTTP endpoint for receiving logs
-│       │   └── writer.js   # File storage implementation
+│       │   ├── index.js       # Main entry point
+│       │   ├── logger.js      # Core logging functionality
+│       │   ├── receiver.js    # HTTP endpoint for receiving logs
+│       │   └── writer.js      # File storage implementation
 │       └── package.json
 │
-├── examples/             # Example implementations
-│   ├── express-basic/
+├── examples/                  # Example implementations
 │   ├── react-app/
 │   ├── vanilla-js/
 │   └── ...
