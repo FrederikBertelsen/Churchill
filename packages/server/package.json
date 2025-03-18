@@ -2,15 +2,14 @@
     "name": "@logit/server",
     "version": "0.1.0",
     "main": "dist/index.js",
-    "types": "dist/index.d.ts",
     "scripts": {
-        "build": "tsc",
-        "dev": "tsc --watch"
+        "build": "mkdir -p dist && cp -r src/* dist/",
+        "dev": "nodemon --watch src --ext js --exec 'npm run build'"
     },
     "dependencies": {
-        "express": "^4.18.0"
+        "http": "0.0.1-security"
     },
-    "peerDependencies": {
-        "express": ">=4.0.0"
+    "devDependencies": {
+        "nodemon": "^2.0.20"
     }
 }

@@ -4,9 +4,8 @@
     "main": "dist/index.js",
     "module": "dist/index.esm.js",
     "unpkg": "dist/logit.min.js",
-    "types": "dist/index.d.ts",
     "scripts": {
-        "build": "esbuild src/index.ts --bundle --minify --outfile=dist/logit.min.js && tsc",
-        "dev": "esbuild src/index.ts --bundle --watch --outfile=dist/logit.js"
+        "build": "esbuild src/index.js --bundle --minify --outfile=dist/logit.min.js",
+        "dev": "esbuild src/index.js --bundle --watch --outfile=dist/logit.js"
     }
 }
