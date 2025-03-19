@@ -25,7 +25,11 @@ class Logger {
         return (new Logger);
     }
 
-    log (event, level = "info"){
+    log(event, level = "info"){
+        if (typeof level === 'number') {
+            level = Object.keys(dict).find(key => dict[key] === level);
+
+        }
         if (dict[level] >= dict[this.level]){
             if (this.console === true){
                 console.log(level, event);
@@ -89,4 +93,5 @@ logger1.config({
 // Create a log message and send it to both console and server
 logger.log("This is a test log message");
 logger.info("Hello")
-logger1.log("idk")
+logger1.log("idk", 60)
+logger1.log("idk1", 50)
