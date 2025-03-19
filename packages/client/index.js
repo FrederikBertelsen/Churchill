@@ -73,13 +73,3 @@ class Logger {
         return this;
     }
 }
-
-//Create new logger
-const logger = Logger.create()
-
-// Configure the logger to send logs to an external URL
-logger.config({
-    console: true, // Enable console logging
-    serverUrl: 'https://bachelor.15263748.xyz/', // Your server's URL
-    endpoint: '/api/event' // Your browser endpoint
-});
