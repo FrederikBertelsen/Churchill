@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogIT Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-debug {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        .btn-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .btn-warn {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .btn-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn-fatal {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-fail {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        #log-area {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .custom-message {
+            width: 300px;
+            padding: 8px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>LogIT Test Page</h1>
+
+    <h2>Send Log Messages</h2>
+    <div>
+        <input type="text" id="custom-message" class="custom-message" placeholder="Enter a custom message...">
+        <button class="btn btn-debug" onclick="sendLog('debug')">Debug</button>
+        <button class="btn btn-info" onclick="sendLog('info')">Info</button>
+        <button class="btn btn-warn" onclick="sendLog('warn')">Warn</button>
+        <button class="btn btn-error" onclick="sendLog('error')">Error</button>
+        <button class="btn btn-fatal" onclick="sendLog('fatal')">Fatal</button>
+        <button class="btn btn-fail" onclick="sendLog('fail')">Fail</button>
+
+    </div>
+
+    <h2>Log History</h2>
+    <div id="log-area"></div>
+
+    <script>
+        function sendLog(level) {
+            const message = document.getElementById('custom-message').value || `This is a ${level} message at ${new Date().toLocaleTimeString()}`;
+
+            const payload = {
+                level: level,
+                message: message,
+                timestamp: new Date().toISOString()
+            };
+
+            fetch('http://localhost:3000/logs', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'error') {
+                        throw new Error(data.message);
+                    }
+                    addLogEntry(`✅ Sent [${level}]: ${message}`, level);
+                    console.log('Log sent successfully:', data);
+                })
+                .catch(error => {
+                    addLogEntry(`❌ Error sending [${level}]: ${message}`, 'error');
+                    console.error('Error sending log:', error);
+                });
+        }
+
+        function addLogEntry(text, level) {
+            const logArea = document.getElementById('log-area');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${level}`;
+            entry.textContent = text;
+            logArea.prepend(entry);
+        }
+    </script>
+</body>
+
+</html>
