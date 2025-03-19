@@ -83,15 +83,3 @@ logger.config({
     serverUrl: 'https://bachelor.15263748.xyz/', // Your server's URL
     endpoint: '/api/event' // Your browser endpoint
 });
-
-const logger1 = Logger.create()
-
-
-logger1.config({
-    console: true, // Enable console logging
-});
-// Create a log message and send it to both console and server
-logger.log("This is a test log message");
-logger.info("Hello")
-logger1.log("idk", 60)
-logger1.log("idk1", 50)
