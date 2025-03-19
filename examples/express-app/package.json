@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "rm -rf node_modules/ 2>/dev/null || true && npm i && node app.js"
+    "start": "rm -rf node_modules/ 2>/dev/null || true && npm i && cp ../../packages/client/src/index.js ./public/logit.js && node app.js"
   },
   "keywords": [],
   "author": "",

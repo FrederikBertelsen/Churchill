@@ -91,40 +91,51 @@
     <h2>Log History</h2>
     <div id="log-area"></div>
 
+    <script src="logit.js"></script>
+
     <script>
+        const logger = Logger.create();
+        logger.config({
+            serverUrl: 'http://localhost:3000',
+            endpoint: '/logs',
+            console: true,
+        })
+
         function sendLog(level) {
             const message = document.getElementById('custom-message').value || `This is a ${level} message at ${new Date().toLocaleTimeString()}`;
 
-            const payload = {
-                level: level,
-                message: message,
-                timestamp: new Date().toISOString()
-            };
+            // const payload = {
+            //     level: level,
+            //     message: message,
+            //     timestamp: new Date().toISOString()
+            // };
 
-            fetch('http://localhost:3000/logs', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.status === 'error') {
-                        throw new Error(data.message);
-                    }
-                    addLogEntry(`✅ Sent [${level}]: ${message}`, level);
-                    console.log('Log sent successfully:', data);
-                })
-                .catch(error => {
-                    addLogEntry(`❌ Error sending [${level}]: ${message}`, 'error');
-                    console.error('Error sending log:', error);
-                });
+            logger.log(message, level);
+
+            // fetch('http://localhost:3000/logs', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json'
+            //     },
+            //     body: JSON.stringify(payload)
+            // })
+            //     .then(response => {
+            //         if (!response.ok) {
+            //             throw new Error(`HTTP error! Status: ${response.status}`);
+            //         }
+            //         return response.json();
+            //     })
+            //     .then(data => {
+            //         if (data.status === 'error') {
+            //             throw new Error(data.message);
+            //         }
+            //         addLogEntry(`✅ Sent [${level}]: ${message}`, level);
+            //         console.log('Log sent successfully:', data);
+            //     })
+            //     .catch(error => {
+            //         addLogEntry(`❌ Error sending [${level}]: ${message}`, 'error');
+            //         console.error('Error sending log:', error);
+            //     });
         }
 
         function addLogEntry(text, level) {
