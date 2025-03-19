@@ -1,15 +1,24 @@
-const dict = {
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var dict = {
     "fatal": 10,
     "error": 20,
     "warn": 30,
     "info": 40,
     "debug": 50,
-    "trace": 60,
+    "trace": 60
 };
 
-class Logger {
+var Logger = function () {
+    function Logger() {
+        var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-    constructor(options = {}) {
+        _classCallCheck(this, Logger);
+
         this.console = true;
         this.serverUrl = undefined;
         this.endpoint = undefined;
@@ -17,59 +26,75 @@ class Logger {
         this.config(options);
     }
 
-    static create(){
-        this.console = true;
-        this.serverUrl = undefined;
-        this.endpoint = undefined;
-        this.level = "info";
-        return (new Logger);
-    }
+    _createClass(Logger, [{
+        key: "log",
+        value: function log(event) {
+            var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "info";
 
-    log(event, level = "info"){
-        if (typeof level === 'number') {
-            level = Object.keys(dict).find(key => dict[key] === level);
-
-        }
-        if (dict[level] <= dict[this.level]){
-            if (this.console === true){
-                console.log(level, event);
-            } 
-            const payload = {
-                level: level,
-                data: event
-            };
-        if (this.serverUrl !== undefined & this.endpoint !== undefined)
-            // Send logs to the server
-            fetch(`${this.serverUrl}${this.endpoint}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            }).catch((error) => console.error('Failed to send log:', error));
-        }
-    }
-
-    config(options = {}){
-        if (options !== undefined) {
-
-            if (options.console !== undefined) {
-                this.console = options.console; // Enable/disable console logging
+            if (typeof level === 'number') {
+                level = Object.keys(dict).find(function (key) {
+                    return dict[key] === level;
+                });
             }
-            if (options.serverUrl !== undefined) {
-                this.serverUrl = options.serverUrl; // Set server URL for remote logging
-            }
-            if (options.port !== undefined) {
-                this.port = options.port; // Set the server port (default 80)
-            }
-            if (options.endpoint !== undefined){
-                this.endpoint = options.endpoint
-            }
-            Object.keys(dict).forEach(level => {
-                this[level] = (message) => {
-                    this.log(message, level);
+            if (dict[level] <= dict[this.level]) {
+                if (this.console === true) {
+                    console.log(level, event);
+                }
+                var payload = {
+                    level: level,
+                    data: event
                 };
-            });
-        }   
-        
-        return this;
-    }
-}
+                if (this.serverUrl !== undefined & this.endpoint !== undefined)
+                    // Send logs to the server
+                    fetch("" + this.serverUrl + this.endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    }).catch(function (error) {
+                        return console.error('Failed to send log:', error);
+                    });
+            }
+        }
+    }, {
+        key: "config",
+        value: function config() {
+            var _this = this;
+
+            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+            if (options !== undefined) {
+
+                if (options.console !== undefined) {
+                    this.console = options.console; // Enable/disable console logging
+                }
+                if (options.serverUrl !== undefined) {
+                    this.serverUrl = options.serverUrl; // Set server URL for remote logging
+                }
+                if (options.port !== undefined) {
+                    this.port = options.port; // Set the server port (default 80)
+                }
+                if (options.endpoint !== undefined) {
+                    this.endpoint = options.endpoint;
+                }
+                Object.keys(dict).forEach(function (level) {
+                    _this[level] = function (message) {
+                        _this.log(message, level);
+                    };
+                });
+            }
+
+            return this;
+        }
+    }], [{
+        key: "create",
+        value: function create() {
+            this.console = true;
+            this.serverUrl = undefined;
+            this.endpoint = undefined;
+            this.level = "info";
+            return new Logger();
+        }
+    }]);
+
+    return Logger;
+}();
