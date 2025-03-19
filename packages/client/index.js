@@ -4,7 +4,7 @@ const dict = {
     "warn": 30,
     "info": 40,
     "debug": 50,
-    "trace": 60,  
+    "trace": 60,
 };
 
 class Logger {
@@ -30,7 +30,7 @@ class Logger {
             level = Object.keys(dict).find(key => dict[key] === level);
 
         }
-        if (dict[level] >= dict[this.level]){
+        if (dict[level] <= dict[this.level]){
             if (this.console === true){
                 console.log(level, event);
             } 
