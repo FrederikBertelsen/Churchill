@@ -7,8 +7,8 @@ class Logger {
         this.configure(options);
     }
 
-    log(level, message) {
-        if (this.levels[level] <= this.levels[this.level]) {
+    log(level, message, force = false) {
+        if (force || this.levels[level] <= this.levels[this.level]) {
             console.log(`[${level}] ${message}`);
         }
     }
@@ -41,6 +41,38 @@ class Logger {
                 this.log(level, message);
             };
         });
+    }
+
+    processLog(payload) {
+        try {
+            if (typeof payload === 'string') {
+                payload = JSON.parse(payload);
+            }
+
+            this.log(
+                payload.level,
+                payload.message || payload.data || JSON.stringify(payload),
+                true
+            );
+            // this[payload.level](payload.message || payload.data || JSON.stringify(payload));
+
+
+            // if (payload.level && typeof payload.level === 'string') {
+            //     if (typeof this[payload.level] === 'function') {
+            //         this[payload.level](payload.message || payload.data || JSON.stringify(payload));
+            //     } else {
+            //         console.error(`Unknown level: ${payload.level}`);
+            //         return false;
+            //     }
+            // } else {
+            //     this.info(payload.message || payload.data || JSON.stringify(payload));
+            // }
+
+            return true;
+        } catch (err) {
+            console.error(`Error processing log: ${err.message}`);
+            return false;
+        }
     }
 }
 
