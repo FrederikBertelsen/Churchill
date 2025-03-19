@@ -86,7 +86,6 @@
         <button class="btn btn-error" onclick="sendLog('error')">Error</button>
         <button class="btn btn-fatal" onclick="sendLog('fatal')">Fatal</button>
         <button class="btn btn-fail" onclick="sendLog('fail')">Fail</button>
-
     </div>
 
     <h2>Log History</h2>
@@ -113,7 +112,6 @@
                     if (!response.ok) {
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
-
                     return response.json();
                 })
                 .then(data => {
