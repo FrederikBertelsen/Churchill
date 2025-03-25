@@ -1,19 +1,23 @@
 'use strict';
 
 const defaultOptions = require('./defaultOptions');
+const ConsoleTransport = require('./console-transport');
 
 class Logger {
     constructor(options = {}) {
         this.configure(options);
     }
 
-    log(level, message, force = false) {
+    log(level, message, metadata = {}, force = false) {
         if (force || this.levels[level] <= this.levels[this.level]) {
-            console.log(`[${level}] ${message}`);
+            // Send the log to all transports
+            this.transports.forEach(transport => {
+                transport.log(level, message, metadata);
+            });
         }
     }
 
-    configure({ levels, level }) {
+    configure(options = {}) {
         // First remove previously dynamically created level methods
         if (this.levels) {
             Object.keys(this.levels).forEach(level => {
@@ -21,26 +25,47 @@ class Logger {
             });
         }
 
-        this.levels = levels || defaultOptions.levels;
+        this.levels = options.levels || defaultOptions.levels;
 
         // If level is a number, find the corresponding level name
-        if (typeof level === 'number') {
-            level = Object.keys(this.levels).find(key => this.levels[key] === level);
+        if (typeof options.level === 'number') {
+            options.level = Object.keys(this.levels).find(key => this.levels[key] === options.level);
         }
 
         // Validate level
-        if (level && !this.levels[level]) {
-            throw new Error(`Unknown level: ${level} - valid levels are: ${Object.keys(this.levels).join(', ')}`);
+        if (options.level && !this.levels[options.level]) {
+            throw new Error(`Unknown level: ${options.level} - valid levels are: ${Object.keys(this.levels).join(', ')}`);
         }
-        this.level = level || defaultOptions.level;
+        this.level = options.level || defaultOptions.level;
+
+        // Configure transports
+        this.transports = [];
+        
+        if (options.transports && Array.isArray(options.transports) && options.transports.length > 0) {
+            // Add user-specified transports
+            this.transports = options.transports;
+            
+            // Ensure transports have the same levels definition as the logger
+            this.transports.forEach(transport => {
+                transport.configure({ levels: this.levels });
+            });
+        } else {
+            // Add default console transport if none specified
+            this.transports.push(new ConsoleTransport({
+                level: this.level,
+                levels: this.levels
+            }));
+        }
 
         // Dynamically create logging methods for each level
         // (e.g. logger.info('message'), logger.warn('message'), etc.)
         Object.keys(this.levels).forEach(level => {
-            this[level] = (message) => {
-                this.log(level, message);
+            this[level] = (message, metadata) => {
+                this.log(level, message, metadata);
             };
         });
+        
+        return this;
     }
 
     processLog(payload) {
@@ -49,25 +74,11 @@ class Logger {
                 payload = JSON.parse(payload);
             }
 
-            this.log(
-                payload.level,
-                payload.message || payload.data || JSON.stringify(payload),
-                true
-            );
-            // this[payload.level](payload.message || payload.data || JSON.stringify(payload));
+            const level = payload.level || 'info';
+            const message = payload.message || payload.data || '';
+            const metadata = payload.metadata || {};
 
-
-            // if (payload.level && typeof payload.level === 'string') {
-            //     if (typeof this[payload.level] === 'function') {
-            //         this[payload.level](payload.message || payload.data || JSON.stringify(payload));
-            //     } else {
-            //         console.error(`Unknown level: ${payload.level}`);
-            //         return false;
-            //     }
-            // } else {
-            //     this.info(payload.message || payload.data || JSON.stringify(payload));
-            // }
-
+            this.log(level, message, metadata, true);
             return true;
         } catch (err) {
             console.error(`Error processing log: ${err.message}`);

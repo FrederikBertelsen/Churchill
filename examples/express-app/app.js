@@ -4,7 +4,16 @@ const path = require('path')
 const app = express()
 const port = 3000
 
-const logger = logit.createLogger()
+// Create a logger with multiple transports
+const logger = logit.createLogger({
+  transports: [
+    new logit.transports.Console({ timestamp: true }),
+    new logit.transports.File({ 
+      filename: path.join(__dirname, 'logs', 'app.log'),
+      level: 'error' 
+    })
+  ]
+})
 
 // Add middleware to parse JSON bodies
 app.use(express.json())
@@ -25,6 +34,6 @@ app.post('/logs', (req, res) => {
 })
 
 app.listen(port, () => {
-    console.log(`\n\nExample app listening on port ${port}`)
-    console.log(`Open http://localhost:${port} in your browser to test the logger\n\n`)
+    logger.info(`Example app listening on port ${port}`)
+    logger.info(`Open http://localhost:${port} in your browser to test the logger`)
 })
