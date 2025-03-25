@@ -44,15 +44,24 @@ var Logger = function () {
                     level: level,
                     data: event
                 };
-                if (this.serverUrl !== undefined & this.endpoint !== undefined)
+                if (this.serverUrl !== undefined & this.endpoint !== undefined){
                     // Send logs to the server
-                    fetch("" + this.serverUrl + this.endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    }).catch(function (error) {
-                        return console.error('Failed to send log:', error);
-                    });
+                    var xhr = new XMLHttpRequest();
+                    xhr.open("POST", this.serverUrl + this.endpoint, true);
+                    xhr.setRequestHeader("Content-Type", "application/json");
+                    
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4 && xhr.status >= 400) {
+                            console.error('Failed to send log:', xhr.statusText);
+                        }
+                    };
+                    
+                    xhr.onerror = function () {
+                        console.error('Failed to send log: Network error');
+                    };
+                    
+                    xhr.send(JSON.stringify(payload));
+                }
             }
         }
     }, {
