@@ -13,12 +13,36 @@ var dict = {
     "trace": 60
 };
 
+var _batch = [];
+var _batchSize = 10;
+var _batchInterval = 10000;
+var _batchEnabled = true;
+
 var Logger = function () {
     function Logger() {
         var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
         _classCallCheck(this, Logger);
+        setInterval(() => {
+            if (_batch.length > 0) {
 
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", this.serverUrl + this.endpoint, true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                var logsToSend = _batch.splice(0, _batch.length);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status >= 400) {
+                        console.error('Failed to send log:', xhr.statusText);
+                    }
+                };
+                
+                xhr.onerror = function () {
+                    console.error('Failed to send log: Network error');
+                };
+                
+                xhr.send(JSON.stringify(logsToSend));
+            }
+        }, _batchInterval);
         this.console = true;
         this.serverUrl = undefined;
         this.endpoint = undefined;
@@ -44,12 +68,18 @@ var Logger = function () {
                     level: level,
                     data: event
                 };
-                if (this.serverUrl !== undefined & this.endpoint !== undefined){
+
+                if (_batchEnabled) {
+                    _batch.push(payload);
+                }
+
+                if (this.serverUrl !== undefined & this.endpoint !== undefined & _batch.length >= _batchSize ) {
+                 
                     // Send logs to the server
                     var xhr = new XMLHttpRequest();
                     xhr.open("POST", this.serverUrl + this.endpoint, true);
                     xhr.setRequestHeader("Content-Type", "application/json");
-                    
+                    var logsToSend = _batch.splice(0, _batch.length);
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState === 4 && xhr.status >= 400) {
                             console.error('Failed to send log:', xhr.statusText);
@@ -60,7 +90,7 @@ var Logger = function () {
                         console.error('Failed to send log: Network error');
                     };
                     
-                    xhr.send(JSON.stringify(payload));
+                    xhr.send(JSON.stringify(logsToSend));
                 }
             }
         }
