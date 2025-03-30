@@ -21,28 +21,6 @@ var _batchEnabled = true;
 var Logger = function () {
     function Logger() {
         var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-        _classCallCheck(this, Logger);
-        setInterval(() => {
-            if (_batch.length > 0) {
-
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", this.serverUrl + this.endpoint, true);
-                xhr.setRequestHeader("Content-Type", "application/json");
-                var logsToSend = _batch.splice(0, _batch.length);
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4 && xhr.status >= 400) {
-                        console.error('Failed to send log:', xhr.statusText);
-                    }
-                };
-                
-                xhr.onerror = function () {
-                    console.error('Failed to send log: Network error');
-                };
-                
-                xhr.send(JSON.stringify(logsToSend));
-            }
-        }, _batchInterval);
         this.console = true;
         this.serverUrl = undefined;
         this.endpoint = undefined;
@@ -50,6 +28,26 @@ var Logger = function () {
         this.config(options);
     }
 
+    
+    function _sendBatch(serverUrl, endpoint) {
+        if (_batch.length > 0) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", serverUrl + endpoint, true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            var logsToSend = _batch.splice(0, _batch.length);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status >= 400) {
+                    console.error('Failed to send log:', xhr.statusText);
+                }
+            };
+            
+            xhr.onerror = function () {
+                console.error('Failed to send log: Network error');
+            };
+            
+            xhr.send(JSON.stringify(logsToSend));
+        }
+    }
     _createClass(Logger, [{
         key: "log",
         value: function log(event) {
@@ -76,21 +74,7 @@ var Logger = function () {
                 if (this.serverUrl !== undefined & this.endpoint !== undefined & _batch.length >= _batchSize ) {
                  
                     // Send logs to the server
-                    var xhr = new XMLHttpRequest();
-                    xhr.open("POST", this.serverUrl + this.endpoint, true);
-                    xhr.setRequestHeader("Content-Type", "application/json");
-                    var logsToSend = _batch.splice(0, _batch.length);
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState === 4 && xhr.status >= 400) {
-                            console.error('Failed to send log:', xhr.statusText);
-                        }
-                    };
-                    
-                    xhr.onerror = function () {
-                        console.error('Failed to send log: Network error');
-                    };
-                    
-                    xhr.send(JSON.stringify(logsToSend));
+                    _sendBatch(this.serverUrl, this.endpoint);
                 }
             }
         }
@@ -115,6 +99,13 @@ var Logger = function () {
                 if (options.endpoint !== undefined) {
                     this.endpoint = options.endpoint;
                 }
+                if (options.serverUrl !== undefined & options.endpoint !== undefined) {
+                    _classCallCheck(this, Logger);
+                    setInterval(() => {
+                        _sendBatch(this.serverUrl, this.endpoint);
+                    }, _batchInterval);
+                }
+                
                 Object.keys(dict).forEach(function (level) {
                     _this[level] = function (message) {
                         _this.log(message, level);
