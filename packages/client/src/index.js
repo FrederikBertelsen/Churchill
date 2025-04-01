@@ -4,7 +4,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var dict = {
+var _dict = {
     "fatal": 10,
     "error": 20,
     "warn": 30,
@@ -54,11 +54,11 @@ var Logger = function () {
             var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "info";
 
             if (typeof level === 'number') {
-                level = Object.keys(dict).find(function (key) {
-                    return dict[key] === level;
+                level = Object.keys(_dict).find(function (key) {
+                    return _dict[key] === level;
                 });
             }
-            if (dict[level] <= dict[this.level]) {
+            if (_dict[level] <= _dict[this.level]) {
                 if (this.console === true) {
                     console.log(level, event);
                 }
@@ -104,9 +104,12 @@ var Logger = function () {
                     setInterval(() => {
                         _sendBatch(this.serverUrl, this.endpoint);
                     }, _batchInterval);
+                    window.addEventListener("beforeunload", () => {
+                        _sendBatch(this.serverUrl, this.endpoint)
+                    });
                 }
                 
-                Object.keys(dict).forEach(function (level) {
+                Object.keys(_dict).forEach(function (level) {
                     _this[level] = function (message) {
                         _this.log(message, level);
                     };
