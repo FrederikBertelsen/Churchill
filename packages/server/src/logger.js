@@ -40,11 +40,11 @@ class Logger {
 
         // Configure transports
         this.transports = [];
-        
+
         if (options.transports && Array.isArray(options.transports) && options.transports.length > 0) {
             // Add user-specified transports
             this.transports = options.transports;
-            
+
             // Ensure transports have the same levels definition as the logger
             this.transports.forEach(transport => {
                 transport.configure({ levels: this.levels });
@@ -64,7 +64,7 @@ class Logger {
                 this.log(level, message, metadata);
             };
         });
-        
+
         return this;
     }
 
@@ -72,6 +72,15 @@ class Logger {
         try {
             if (typeof payload === 'string') {
                 payload = JSON.parse(payload);
+            }
+            // if is array of payloads
+            else if (typeof payload === 'object') {
+                if (Array.isArray(payload)) {
+                    payload.forEach(item => {
+                        this.processLog(item);
+                    });
+                    return true;
+                }
             }
 
             const level = payload.level || 'info';
