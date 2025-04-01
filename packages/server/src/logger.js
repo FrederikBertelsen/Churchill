@@ -77,7 +77,9 @@ class Logger {
             else if (typeof payload === 'object') {
                 if (Array.isArray(payload)) {
                     payload.forEach(item => {
-                        this.processLog(item);
+                        if (!this.processLog(item)) {
+                            return false
+                        }
                     });
                     return true;
                 }
