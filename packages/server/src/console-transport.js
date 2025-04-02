@@ -12,8 +12,6 @@ class ConsoleTransport extends Transport {
     configure(options = {}) {
         super.configure(options);
         
-        // Additional console-specific options
-        this.colorize = options.colorize !== false;
         this.timestamp = options.timestamp !== false;
         
         return this;

@@ -1,17 +1,17 @@
 const express = require('express')
-const logit = require('logit')
+const churchill = require('churchill')
 const path = require('path')
 const app = express()
 const port = 3000
 
 // Create a logger with multiple transports
-const logger = logit.createLogger({
+const logger = churchill.create({
   transports: [
-    new logit.transports.Console({ timestamp: true }),
-    new logit.transports.File({ 
+    new churchill.transports.Console({ timestamp: true }),
+    new churchill.transports.File({
       filename: path.join(__dirname, 'logs', 'app.log'),
-      level: 'error' 
-    })
+      level: 'error'
+    }),
   ]
 })
 
@@ -22,18 +22,18 @@ app.use(express.json())
 app.use(express.static(path.join(__dirname, 'public')))
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'))
+  res.sendFile(path.join(__dirname, 'public', 'index.html'))
 })
 
 // Create a specific endpoint for logs
 app.post('/logs', (req, res) => {
-    const success = logger.processLog(req.body)
-    res.status(success ? 200 : 400).json({
-        status: success ? 'ok' : 'error'
-    })
+  const success = logger.processLog(req.body)
+  res.status(success ? 200 : 400).json({
+    status: success ? 'ok' : 'error'
+  })
 })
 
 app.listen(port, () => {
-    logger.info(`Example app listening on port ${port}`)
-    logger.info(`Open http://localhost:${port} in your browser to test the logger`)
+  logger.info(`Example app listening on port ${port}`)
+  logger.info(`Open http://localhost:${port} in your browser to test the logger`)
 })

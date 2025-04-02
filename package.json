@@ -1,5 +1,5 @@
 {
-  "name": "logit-monorepo",
+  "name": "churchill-monorepo",
   "private": true,
   "scripts": {
     "build": "pnpm -r build",

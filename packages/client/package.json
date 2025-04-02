@@ -1,11 +1,11 @@
 {
-    "name": "@logit/client",
+    "name": "@churchill/client",
     "version": "0.1.0",
     "main": "dist/index.js",
     "module": "dist/index.esm.js",
-    "unpkg": "dist/logit.min.js",
+    "unpkg": "dist/churchill.min.js",
     "scripts": {
-        "build": "esbuild src/index.js --bundle --minify --outfile=dist/logit.min.js",
-        "dev": "esbuild src/index.js --bundle --watch --outfile=dist/logit.js"
+        "build": "esbuild src/index.js --bundle --minify --outfile=dist/churchill.min.js",
+        "dev": "esbuild src/index.js --bundle --watch --outfile=dist/churchill.js"
     }
 }

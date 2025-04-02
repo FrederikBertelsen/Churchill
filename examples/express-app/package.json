@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "rm -rf node_modules/ 2>/dev/null || true && npm i && cp ../../packages/client/src/index.js ./public/logit.js && node app.js"
+    "start": "rm -rf node_modules/ 2>/dev/null || true && npm i && cp ../../packages/client/src/index.js ./public/churchill.js && node app.js"
   },
   "keywords": [],
   "author": "",
@@ -11,6 +11,6 @@
   "description": "",
   "dependencies": {
     "express": "^4.21.2",
-    "logit": "file:../../packages/server"
+    "churchill": "file:../../packages/server"
   }
 }

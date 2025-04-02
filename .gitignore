@@ -161,4 +161,4 @@ dist
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,node
-examples/express-app/public/logit.js
+examples/express-app/public/churchill.js

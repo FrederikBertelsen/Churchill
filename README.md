@@ -1,15 +1,15 @@
-# LogIT - Development Plan
+# Churchill - Development Plan
 
 ## Project Overview
 
-LogIT will consist of two main components:
+Churchill will consist of two main components:
 
-1. **@logit/client** - Browser-side logging library (distributed via CDN)
-2. **@logit/server** - Node.js server component (distributed via npm)
+1. **@churchill/client** - Browser-side logging library (distributed via CDN)
+2. **@churchill/server** - Node.js server component (distributed via npm)
 
 ## Repository Structure
 ```
-/LogIT/
+/Churchill/
 ├── packages/
 │   ├── client/                # Browser client library
 │   │   ├── src/

@@ -8,7 +8,7 @@ exports.version = require('../package.json').version;
 /**
  * @type {function}
  */
-exports.createLogger = require('./create-logger');
+exports.create = require('./create-logger');
 
 /**
  * @type {object}
