@@ -10,7 +10,6 @@ const logger = churchill.create({
     new churchill.transports.Console({ timestamp: true }),
     new churchill.transports.File({
       filename: path.join(__dirname, 'logs', 'app.log'),
-      level: 'error'
     }),
   ]
 })
@@ -34,6 +33,6 @@ app.post('/logs', (req, res) => {
 })
 
 app.listen(port, () => {
-  logger.info(`Example app listening on port ${port}`)
-  logger.info(`Open http://localhost:${port} in your browser to test the logger`)
+  console.log(`Example app listening on port ${port}`)
+  console.log(`Open http://localhost:${port} in your browser to test the logger`)
 })

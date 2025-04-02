@@ -8,22 +8,16 @@ class FileTransport extends Transport {
     constructor(options = {}) {
         super(options);
 
-        this.configure(options);
-    }
-
-    configure(options = {}) {
         // File specific options
         this.filename = options.filename || 'logs/app.log';
         this.eol = options.eol !== undefined ? options.eol : require('os').EOL;
 
         // Try to ensure the directory exists
         this._ensureDirectory();
-
-        return this;
     }
 
     log(level, message, metadata) {
-        const output = this.formatOutput(level, message, metadata);
+        const output = this.logToString(level, message, metadata);
 
         try {
             // Append to file
@@ -31,7 +25,7 @@ class FileTransport extends Transport {
         } catch (err) {
             // If file writing fails, log to console as fallback
             console.error(`Error writing to log file: ${err.message}`);
-            console.errir(`Original log: ${output}`);
+            console.error(`Original log: ${output}`);
         }
     }
 
