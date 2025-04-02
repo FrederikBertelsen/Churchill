@@ -67,8 +67,6 @@ var Churchill = function () {
     
     function _sendBatch(serverUrl, endpoint, payload) {
         
-        console.log(endpoint)
-        console.log(serverUrl)
         var xhr = new XMLHttpRequest();
         xhr.open("POST", serverUrl + endpoint, true);
         xhr.setRequestHeader("Content-Type", "application/json");
@@ -103,9 +101,6 @@ var Churchill = function () {
                 }
                 if (options.serverUrl !== undefined) {
                     this.serverUrl = options.serverUrl; // Set server URL for remote logging
-                }
-                if (options.port !== undefined) {
-                    this.port = options.port; // Set the server port (default 80)
                 }
                 if (options.endpoint !== undefined) {
                     this.endpoint = options.endpoint;
