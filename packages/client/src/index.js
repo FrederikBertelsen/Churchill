@@ -35,6 +35,8 @@ var _batchSize = 10;
 // Time in milliseconds between automatic batch transmissions (10 seconds)
 var _batchInterval = 10000;
 
+var loggerintervals = [] // Array to store logger IDs for batch processing
+
 
 // Churchill: A flexible client-side logging system with console and server reporting capabilities
 var Churchill = function () {
@@ -60,6 +62,9 @@ var Churchill = function () {
                         // Output to browser console if enabled
                         if (this.console === true) {
                             console.log(level, message);
+                            var e = new Error(message);
+                            console.log(e.stack);
+                            console.trace();
                         }
                         
                         // Prepare payload for potential server transmission
@@ -151,10 +156,26 @@ var Churchill = function () {
                     this._batchEnabled = true
                     _classCallCheck(this, Churchill);
                     
+                    // If logger already exists, clear the existing interval
+                    
                     // Schedule periodic batch transmissions
-                    setInterval(() => {
-                        _sendBatch(options.serverUrl, options.endpoint);
-                    }, _batchInterval);
+                    loggerintervals.forEach((element, index) => {
+
+                        if (loggerintervals[index].value !== undefined) {
+                            clearInterval(loggerintervals[index].value);
+                            loggerintervals[index].value = undefined;
+                        }
+                        console.log(element.value)
+                        if (element.value === undefined) {
+                            const intervalId = setInterval(() => {
+                                _sendBatch(options.serverUrl, options.endpoint);
+                            }, _batchInterval);
+                            loggerintervals[index] = { key: this.id, value: intervalId };
+                            console.log("Interval set for logger ID: " + this.id, " Interval ID: " + intervalId);
+                        }
+                        
+                    });
+
                     
                     // Ensure any remaining logs are sent when page unloads
                     window.addEventListener("beforeunload", () => {
@@ -175,7 +196,9 @@ var Churchill = function () {
             this.serverUrl = undefined
             this.endpoint = undefined
             this.level = "info"
-        
+            this.id = loggerintervals.length + 1
+            loggerintervals.push({ key: this.id, value: undefined });
+
             return new Churchill();
         }
     }]);
