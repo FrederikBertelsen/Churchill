@@ -14,15 +14,6 @@ var _createClass = function () {
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var _dict = {
-    "fatal": 10,
-    "error": 20,
-    "warn": 30,
-    "info": 40,
-    "debug": 50,
-    "trace": 60
-};
-
 var Churchill = function () {
     function Churchill() {
         _classCallCheck(this, Churchill);
@@ -34,23 +25,25 @@ var Churchill = function () {
 
     function _createLevels() {
         var _levelFunctions = []
+        var _dict = {
+            "error": 10,
+            "warn": 20,
+            "info": 30,
+            "debug": 40,
+            "trace": 50
+        };
         Object.keys(_dict).map(function (level) {
             _levelFunctions.push({
                 key: level.toString(),
-                value: function (event) {
+                value: function (message) {
 
-                    if (typeof level === 'number') {
-                        level = Object.keys(_dict).find(function (key) {
-                            return _dict[key] === level;
-                        });
-                    }
                     if (_dict[level] <= _dict[this.level]) {
                         if (this.console === true) {
-                            console.log(level, event);
+                            console.log(level, message);
                         }
                         var payload = {
                             level: level,
-                            data: event
+                            data: message
                         };
         
                         if (this.serverUrl !== undefined & this.endpoint !== undefined) {
