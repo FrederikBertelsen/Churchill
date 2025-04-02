@@ -1,6 +1,16 @@
 "use strict";
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () { 
+    function defineProperties(target, props) { 
+        for (var i = 0; i < props.length; i++) { 
+            var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; 
+            if ("value" in descriptor) descriptor.writable = true; 
+            Object.defineProperty(target, descriptor.key, descriptor); 
+        } 
+    } return function (Constructor, protoProps, staticProps) { 
+        if (protoProps) defineProperties(Constructor.prototype, protoProps); 
+        if (staticProps) defineProperties(Constructor, staticProps); 
+        return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -16,21 +26,59 @@ var _dict = {
 var _batch = [];
 var _batchSize = 10;
 var _batchInterval = 10000;
-var _batchEnabled = true;
 
-var Logger = function () {
-    function Logger() {
-        var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+
+var Churchill = function () {
+    function Churchill() {
         this.console = true;
         this.serverUrl = undefined;
         this.endpoint = undefined;
         this.level = 'info';
-        this.config(options);
+        this._batchEnabled = false;
     }
 
+    function _createLevels() {
+        var _levelFunctions = []
+        Object.keys(_dict).map(function (level) {
+            _levelFunctions.push({
+                key: level.toString(),
+                value: function (event) {
+
+                    if (typeof level === 'number') {
+                        level = Object.keys(_dict).find(function (key) {
+                            return _dict[key] === level;
+                        });
+                    }
+                    if (_dict[level] <= _dict[this.level]) {
+                        if (this.console === true) {
+                            console.log(level, event);
+                        }
+                        var payload = {
+                            level: level,
+                            data: event
+                        };
+        
+                        if (this._batchEnabled) {
+                            _batch.push(payload);
+                        }
+        
+                        if (this.serverUrl !== undefined & this.endpoint !== undefined & _batch.length >= _batchSize ) {
+                         
+                            // Send logs to the server
+                            _sendBatch(this.serverUrl, this.endpoint);
+                        }
+                    }
+                }
+            });
+        })
+        return _levelFunctions
+    }
     
     function _sendBatch(serverUrl, endpoint) {
         if (_batch.length > 0) {
+            console.log(endpoint)
+            console.log(serverUrl)
             var xhr = new XMLHttpRequest();
             xhr.open("POST", serverUrl + endpoint, true);
             xhr.setRequestHeader("Content-Type", "application/json");
@@ -48,40 +96,14 @@ var Logger = function () {
             xhr.send(JSON.stringify(logsToSend));
         }
     }
-    _createClass(Logger, [{
-        key: "log",
-        value: function log(event) {
-            var level = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "info";
-
-            if (typeof level === 'number') {
-                level = Object.keys(_dict).find(function (key) {
-                    return _dict[key] === level;
-                });
-            }
-            if (_dict[level] <= _dict[this.level]) {
-                if (this.console === true) {
-                    console.log(level, event);
-                }
-                var payload = {
-                    level: level,
-                    data: event
-                };
-
-                if (_batchEnabled) {
-                    _batch.push(payload);
-                }
-
-                if (this.serverUrl !== undefined & this.endpoint !== undefined & _batch.length >= _batchSize ) {
-                 
-                    // Send logs to the server
-                    _sendBatch(this.serverUrl, this.endpoint);
-                }
-            }
-        }
-    }, {
+    _createClass(Churchill,
+        
+        [ 
+    ..._createLevels(),
+        {
         key: "config",
         value: function config() {
-            var _this = this;
+
 
             var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
@@ -100,20 +122,15 @@ var Logger = function () {
                     this.endpoint = options.endpoint;
                 }
                 if (options.serverUrl !== undefined & options.endpoint !== undefined) {
-                    _classCallCheck(this, Logger);
+                    this._batchEnabled = true
+                    _classCallCheck(this, Churchill);
                     setInterval(() => {
-                        _sendBatch(this.serverUrl, this.endpoint);
+                        _sendBatch(options.serverUrl, options.endpoint);
                     }, _batchInterval);
                     window.addEventListener("beforeunload", () => {
-                        _sendBatch(this.serverUrl, this.endpoint)
+                        _sendBatch(options.serverUrl, options.endpoint)
                     });
                 }
-                
-                Object.keys(_dict).forEach(function (level) {
-                    _this[level] = function (message) {
-                        _this.log(message, level);
-                    };
-                });
             }
 
             return this;
@@ -122,12 +139,13 @@ var Logger = function () {
         key: "create",
         value: function create() {
             this.console = true;
-            this.serverUrl = undefined;
-            this.endpoint = undefined;
-            this.level = "info";
-            return new Logger();
+            this.serverUrl = undefined
+            this.endpoint = undefined
+            this.level = "info"
+        
+            return new Churchill();
         }
     }]);
 
-    return Logger;
+    return Churchill;
 }();
