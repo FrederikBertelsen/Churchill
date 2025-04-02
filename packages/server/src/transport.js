@@ -1,6 +1,5 @@
 'use strict';
 
-const os = require('os');
 const defaultOptions = require('./defaultOptions');
 
 class Transport {
@@ -20,9 +19,6 @@ class Transport {
             this.level = options.level || defaultOptions.level;
         }
 
-        // Enable/disable the transport
-        this.enabled = options.enabled !== false;
-
         // Store any other custom options passed to the transport
         this.options = { ...options };
 
@@ -34,43 +30,40 @@ class Transport {
         throw new Error('Transport must implement log method');
     }
 
+    logToString(level, message, metadata) {
+        let output = '';
+
+        // Add level
+        output += `[${level.toUpperCase()}] `;
+
+        // Add message
+        output += typeof message === 'object' ? JSON.stringify(message) : message;
+
+        // Add metadata if available
+        if (metadata) {
+            output += ` ${typeof metadata === 'object' ? JSON.stringify(metadata) : metadata}`;
+        }
+
+        return output;
+    }
+
     // Helper to check if this transport should handle this log level
     shouldLog(level) {
-        return this.enabled &&
-            this.levels[level] <= this.levels[this.level];
+        return this.levels[level] <= this.levels[this.level];
     }
     
-    // Static method to create custom transport
-    static create(customImplementation, options = {}) {
-        // Handle both function and object with log method
-        const logFunction = typeof customImplementation === 'function' 
-            ? customImplementation 
-            : (customImplementation && typeof customImplementation.log === 'function' 
-                ? customImplementation.log.bind(customImplementation) 
-                : null);
-                
-        if (!logFunction) {
-            throw new Error('Custom transport must be a function or an object with a log method');
-        }
-        
-        // Merge options if customImplementation is an object with options
-        if (typeof customImplementation === 'object' && customImplementation !== null) {
-            options = { ...customImplementation, ...options };
-            // Remove log function from options if present
-            delete options.log;
+    // Static method to create simple transport with a custom log function
+    static create(customLogFunction, options = {}) {
+        // Ensure customImplementation is a function
+        if (typeof customLogFunction !== 'function') {
+            throw new Error('Custom transport function must be a function');
         }
         
         // Create a new Transport instance
         const transport = new Transport(options);
         
-        // Override the log method to call the custom implementation
-        transport.log = function(level, message, metadata) {
-            // First check if this transport should log this level
-            if (!this.shouldLog(level)) return;
-            
-            // Call the custom log function
-            return logFunction(level, message, metadata, this);
-        };
+        // Override the log method with custom implementation
+        transport.log = customLogFunction;
         
         return transport;
     }
