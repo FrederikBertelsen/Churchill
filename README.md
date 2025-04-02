@@ -1,3 +1,5 @@
+![Churchill logo](/docs/logo.png)
+
 # Churchill
 
 ## Project Overview
