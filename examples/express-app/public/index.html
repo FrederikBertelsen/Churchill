@@ -80,12 +80,11 @@
     <h2>Send Log Messages</h2>
     <div>
         <input type="text" id="custom-message" class="custom-message" placeholder="Enter a custom message...">
+        <button class="btn btn-trace" onclick="sendLog('trace')">Trace</button>
         <button class="btn btn-debug" onclick="sendLog('debug')">Debug</button>
         <button class="btn btn-info" onclick="sendLog('info')">Info</button>
         <button class="btn btn-warn" onclick="sendLog('warn')">Warn</button>
         <button class="btn btn-error" onclick="sendLog('error')">Error</button>
-        <button class="btn btn-fatal" onclick="sendLog('fatal')">Fatal</button>
-        <button class="btn btn-fail" onclick="sendLog('fail')">Fail</button>
     </div>
 
     <h2>Log History</h2>
@@ -94,7 +93,7 @@
     <script src="churchill.js"></script>
 
     <script>
-        const logger = Logger.create();
+        const logger = Churchill.create();
         logger.config({
             serverUrl: 'http://localhost:3000',
             endpoint: '/logs',
@@ -104,38 +103,30 @@
         function sendLog(level) {
             const message = document.getElementById('custom-message').value || `This is a ${level} message at ${new Date().toLocaleTimeString()}`;
 
-            // const payload = {
-            //     level: level,
-            //     message: message,
-            //     timestamp: new Date().toISOString()
-            // };
 
-            logger.log(message, level);
+            switch (level) {
+                case 'trace':
+                    logger.trace(message);
+                    break;
+                case 'debug':
+                    logger.debug(message);
+                    break;
+                case 'info':
+                    logger.info(message);
+                    break;
+                case 'warn':
+                    logger.warn(message);
+                    break;
+                case 'error':
+                    logger.error(message);
+                    break;
+                default:
+                    console.error('Unknown log level:', level);
+                    return;
+            }
 
-            // fetch('http://localhost:3000/logs', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     },
-            //     body: JSON.stringify(payload)
-            // })
-            //     .then(response => {
-            //         if (!response.ok) {
-            //             throw new Error(`HTTP error! Status: ${response.status}`);
-            //         }
-            //         return response.json();
-            //     })
-            //     .then(data => {
-            //         if (data.status === 'error') {
-            //             throw new Error(data.message);
-            //         }
-            //         addLogEntry(`✅ Sent [${level}]: ${message}`, level);
-            //         console.log('Log sent successfully:', data);
-            //     })
-            //     .catch(error => {
-            //         addLogEntry(`❌ Error sending [${level}]: ${message}`, 'error');
-            //         console.error('Error sending log:', error);
-            //     });
+
+            addLogEntry(`Sent [${level}]: ${message}`, level);
         }
 
         function addLogEntry(text, level) {
