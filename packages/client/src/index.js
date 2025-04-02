@@ -23,19 +23,13 @@ var _dict = {
     "trace": 60
 };
 
-var _batch = [];
-var _batchSize = 10;
-var _batchInterval = 10000;
-
-
-
 var Churchill = function () {
     function Churchill() {
+        _classCallCheck(this, Churchill);
         this.console = true;
         this.serverUrl = undefined;
         this.endpoint = undefined;
         this.level = 'info';
-        this._batchEnabled = false;
     }
 
     function _createLevels() {
@@ -59,14 +53,10 @@ var Churchill = function () {
                             data: event
                         };
         
-                        if (this._batchEnabled) {
-                            _batch.push(payload);
-                        }
-        
-                        if (this.serverUrl !== undefined & this.endpoint !== undefined & _batch.length >= _batchSize ) {
+                        if (this.serverUrl !== undefined & this.endpoint !== undefined) {
                          
                             // Send logs to the server
-                            _sendBatch(this.serverUrl, this.endpoint);
+                            _sendBatch(this.serverUrl, this.endpoint, payload);
                         }
                     }
                 }
@@ -75,26 +65,25 @@ var Churchill = function () {
         return _levelFunctions
     }
     
-    function _sendBatch(serverUrl, endpoint) {
-        if (_batch.length > 0) {
-            console.log(endpoint)
-            console.log(serverUrl)
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", serverUrl + endpoint, true);
-            xhr.setRequestHeader("Content-Type", "application/json");
-            var logsToSend = _batch.splice(0, _batch.length);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status >= 400) {
-                    console.error('Failed to send log:', xhr.statusText);
-                }
-            };
-            
-            xhr.onerror = function () {
-                console.error('Failed to send log: Network error');
-            };
-            
-            xhr.send(JSON.stringify(logsToSend));
-        }
+    function _sendBatch(serverUrl, endpoint, payload) {
+        
+        console.log(endpoint)
+        console.log(serverUrl)
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", serverUrl + endpoint, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status >= 400) {
+                console.error('Failed to send log:', xhr.statusText);
+            }
+        };
+        
+        xhr.onerror = function () {
+            console.error('Failed to send log: Network error');
+        };
+        
+        xhr.send(JSON.stringify(payload));
+    
     }
     _createClass(Churchill,
         
@@ -120,16 +109,6 @@ var Churchill = function () {
                 }
                 if (options.endpoint !== undefined) {
                     this.endpoint = options.endpoint;
-                }
-                if (options.serverUrl !== undefined & options.endpoint !== undefined) {
-                    this._batchEnabled = true
-                    _classCallCheck(this, Churchill);
-                    setInterval(() => {
-                        _sendBatch(options.serverUrl, options.endpoint);
-                    }, _batchInterval);
-                    window.addEventListener("beforeunload", () => {
-                        _sendBatch(options.serverUrl, options.endpoint)
-                    });
                 }
             }
 
