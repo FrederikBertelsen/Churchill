@@ -21,6 +21,7 @@ var Churchill = function () {
         this.serverUrl = undefined;
         this.endpoint = undefined;
         this.level = 'info';
+        this.useragent = false;
     }
 
     function _createLevels() {
@@ -37,14 +38,24 @@ var Churchill = function () {
                 key: level.toString(),
                 value: function (message) {
 
+                    var payload = {
+                        level: level,
+                        data: message,
+                        time: Date.now()
+                    };
+
+                    if (this.useragent) {
+                        payload.useragent = window.navigator.userAgent;
+                    } else {
+                        payload.useragent = "";
+                    }
+
+
                     if (_dict[level] <= _dict[this.level]) {
                         if (this.console === true) {
-                            console.log(level, message);
+                            console.log(payload.level, payload.data, payload.time, payload.useragent);
                         }
-                        var payload = {
-                            level: level,
-                            data: message
-                        };
+
         
                         if (this.serverUrl !== undefined & this.endpoint !== undefined) {
                          
@@ -97,6 +108,12 @@ var Churchill = function () {
                 }
                 if (options.endpoint !== undefined) {
                     this.endpoint = options.endpoint;
+                }
+                if (options.level !== undefined) {
+                    this.level = options.level; // Set minimum log level
+                }
+                if (options.useragent !== undefined) {
+                    this.useragent = options.useragent; // Set minimum log level
                 }
             }
 
