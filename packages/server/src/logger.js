@@ -15,6 +15,7 @@ class Logger {
     config(options = {}) {
         // Set log level
         this.level = this._resolveLogLevel(options.level) || defaultOptions.level;
+        this.useTimestamp = options.useTimestamp || defaultOptions.useTimestamp;
 
         // Set transports
         if (options.transports && Array.isArray(options.transports) && options.transports.length > 0) {
@@ -22,6 +23,7 @@ class Logger {
         } else {
             this.transports = [new ConsoleTransport({ level: this.level })];
         }
+
 
         return this;
     }
@@ -47,8 +49,15 @@ class Logger {
      */
     _setupLogMethods() {
         // Internal log function used by all log levels
-        const log = (level, message, metadata = {}) => {
+        const log = (level, message, metadata = {}, createMetadata = true) => {
             if (defaultOptions.levels[level] <= defaultOptions.levels[this.level]) {
+
+                if (createMetadata) {
+                    if (this.useTimestamp) {
+                        metadata.timestamp = Math.floor(Date.now() / 1000);
+                    }
+                }
+
                 this.transports.forEach(transport => {
                     if (transport.shouldLog(level)) {
                         transport.log(level, message, metadata);
@@ -58,17 +67,11 @@ class Logger {
         };
 
         // Define all public logging methods explicitly
-        this.trace = (message, metadata = {}) => {
-            const enhancedMetadata = {
-                ...metadata,
-                trace: metadata.trace || new Error().stack,
-            };
-            log('trace', message, enhancedMetadata);
-        };
-        this.debug = (message, metadata = {}) => log('debug', message, metadata);
-        this.info = (message, metadata = {}) => log('info', message, metadata);
-        this.warn = (message, metadata = {}) => log('warn', message, metadata);
-        this.error = (message, metadata = {}) => log('error', message, metadata);
+        this.trace = (message) => log('trace', message, { trace: new Error().stack });
+        this.debug = (message) => log('debug', message, {});
+        this.info = (message) => log('info', message, {});
+        this.warn = (message) => log('warn', message, {});
+        this.error = (message) => log('error', message, {});
 
         // Process log implementation
         this.processLog = (payload) => {
@@ -93,7 +96,7 @@ class Logger {
                 const message = payload.message || payload.data || '';
                 const metadata = payload.metadata || {};
 
-                log(level, message, metadata);
+                log(level, message, metadata, false);
                 return true;
             } catch (err) {
                 console.error(`Error processing log: ${err.message}`);

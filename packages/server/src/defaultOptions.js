@@ -9,6 +9,7 @@ const defaultOptions = {
         trace: 50,
     },
     level: 'info',
+    useTimestamp: true,
 };
 
 
