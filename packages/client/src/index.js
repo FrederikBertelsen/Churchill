@@ -63,21 +63,23 @@ var Churchill = function () {
                         
                         
                         // Prepare payload and differentiate between trace and other levels
+                        
+                        var payload = {
+                            level: level,   
+                            data: message,
+                            time: Date.now(), // Timestamp for the log entry
+                        };
                         if (level.toString() === "trace"){
+
                             var e = new Error(message)
-                            var payload = {
-                                level: level,   
-                                data: e.trace
-                            };
+                            payload.data = e.stack.split("\n").slice(1).map(function (line) {
+                                return line.trim();
+                            }).join("\n");
+
                             if (this.console === true) {
-                                console.trace(level);
+                                console.trace(payload.level, payload.time);
                             }
-                            
                         } else {
-                            var payload = {
-                                level: level,
-                                data: message
-                            };
                             if (this.console === true) {
                                 console.log(payload);
                             }
@@ -159,6 +161,15 @@ var Churchill = function () {
                 // Set API endpoint path for log submission
                 if (options.endpoint !== undefined) {
                     this.endpoint = options.endpoint;
+                }
+
+                if (options.level !== undefined) {
+                    // Validate log level against predefined dictionary
+                    if (options.level in _dict) {
+                        this.level = options.level;
+                    } else {
+                        throw new Error("Invalid log level: " + options.level);
+                    }
                 }
                 
                 // When both server URL and endpoint are provided, enable batch mode
