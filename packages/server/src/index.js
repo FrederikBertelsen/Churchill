@@ -18,9 +18,9 @@ exports.defaultOpts = require('./defaultOptions');
 /**
  * @type {object}
  */
-exports.transports = require('./transports');
+exports.transports = require('./transports/transports');
 
 /**
  * @type {class}
  */
-exports.Transport = require('./transport');
+exports.Transport = require('./transports/transport');

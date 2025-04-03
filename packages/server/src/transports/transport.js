@@ -1,6 +1,6 @@
 'use strict';
 
-const defaultOptions = require('./defaultOptions');
+const defaultOptions = require('../defaultOptions');
 
 class Transport {
     constructor(options = {}) {

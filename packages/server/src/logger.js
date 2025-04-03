@@ -1,7 +1,7 @@
 'use strict';
 
 const defaultOptions = require('./defaultOptions');
-const ConsoleTransport = require('./console-transport');
+const ConsoleTransport = require('./transports/console-transport');
 
 class Logger {
     constructor(options = {}) {
