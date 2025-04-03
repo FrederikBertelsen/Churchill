@@ -35,7 +35,7 @@ var _batchSize = 10;
 // Time in milliseconds between automatic batch transmissions (10 seconds)
 var _batchInterval = 10000;
 
-var loggerintervals = [] // Array to store logger IDs for batch processing
+var _loggerintervals = [] // Array to store logger IDs for batch processing
 
 
 // Churchill: A flexible client-side logging system with console and server reporting capabilities
@@ -56,22 +56,33 @@ var Churchill = function () {
         Object.keys(_dict).map(function (level) {
             _levelFunctions.push({
                 key: level.toString(),
-                value: function (message) {
+                value: function (message="") {
                     // Only process logs at or above the configured threshold level
                     if (_dict[level] <= _dict[this.level]) {
                         // Output to browser console if enabled
-                        if (this.console === true) {
-                            console.log(level, message);
-                            var e = new Error(message);
-                            console.log(e.stack);
-                            console.trace();
-                        }
                         
-                        // Prepare payload for potential server transmission
-                        var payload = {
-                            level: level,
-                            data: message
-                        };
+                        
+                        // Prepare payload and differentiate between trace and other levels
+                        if (level.toString() === "trace"){
+                            var e = new Error(message)
+                            var payload = {
+                                level: level,   
+                                data: e.trace
+                            };
+                            if (this.console === true) {
+                                console.trace(level);
+                            }
+                            
+                        } else {
+                            var payload = {
+                                level: level,
+                                data: message
+                            };
+                            if (this.console === true) {
+                                console.log(payload);
+                            }
+                        }
+
         
                         // Add to batch queue if server logging is enabled
                         if (this._batchEnabled) {
@@ -156,21 +167,21 @@ var Churchill = function () {
                     this._batchEnabled = true
                     _classCallCheck(this, Churchill);
                     
-                    // If logger already exists, clear the existing interval
-                    
-                    // Schedule periodic batch transmissions
-                    loggerintervals.forEach((element, index) => {
 
-                        if (loggerintervals[index].value !== undefined) {
-                            clearInterval(loggerintervals[index].value);
-                            loggerintervals[index].value = undefined;
+                    
+                    // Schedule periodic batch transmissions and remove if logger is reconfigured
+                    _loggerintervals.forEach((element, index) => {
+                    // If logger already exists, clear the existing interval
+                        if (_loggerintervals[index].value !== undefined) {
+                            clearInterval(_loggerintervals[index].value);
+                            _loggerintervals[index].value = undefined;
                         }
                         console.log(element.value)
                         if (element.value === undefined) {
                             const intervalId = setInterval(() => {
                                 _sendBatch(options.serverUrl, options.endpoint);
                             }, _batchInterval);
-                            loggerintervals[index] = { key: this.id, value: intervalId };
+                            _loggerintervals[index] = { key: this.id, value: intervalId };
                             console.log("Interval set for logger ID: " + this.id, " Interval ID: " + intervalId);
                         }
                         
@@ -196,8 +207,8 @@ var Churchill = function () {
             this.serverUrl = undefined
             this.endpoint = undefined
             this.level = "info"
-            this.id = loggerintervals.length + 1
-            loggerintervals.push({ key: this.id, value: undefined });
+            this.id = _loggerintervals.length + 1
+            _loggerintervals.push({ key: this.id, value: undefined });
 
             return new Churchill();
         }
