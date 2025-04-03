@@ -1,5 +1,5 @@
 {
-    "name": "@churchill/client",
+    "name": "churchill-client",
     "version": "0.1.0",
     "main": "dist/index.js",
     "module": "dist/index.esm.js",
