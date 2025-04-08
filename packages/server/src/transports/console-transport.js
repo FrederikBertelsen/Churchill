@@ -11,11 +11,11 @@ class ConsoleTransport extends Transport {
         let output = '';
 
         // Add level
-        output += `${level.toUpperCase()} `;
+        output += `${level.toUpperCase()}: `;
 
         // Add data
         if (data && typeof data === 'string') {
-            output += `${data} `;
+            output += `"${data}" `;
             // if data is an object, and the only key is 'message', use that
         } else if (data && typeof data === 'object') {
             if (data.message && Object.keys(data).length === 1) {
