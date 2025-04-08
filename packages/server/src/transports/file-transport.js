@@ -17,11 +17,11 @@ class FileTransport extends Transport {
     }
 
     logToString(level, data, metadata) {
-        if (data instanceof String) {
+        if (typeof data === 'string') {
             data = { message: data };
         }
-        json = { level: level, data: data, metadata: metadata };
-        
+        const json = { level: level, data: data, metadata: metadata };
+
         return JSON.stringify(json);
     }
 

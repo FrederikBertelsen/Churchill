@@ -27,26 +27,9 @@ class Transport {
         return this;
     }
 
-    log(level, message, metadata) {
+    log(level, data, metadata) {
         // Abstract method to be implemented by specific transports
         throw new Error('Transport must implement log method');
-    }
-
-    logToString(level, message, metadata) {
-        let output = '';
-
-        // Add level
-        output += `[${level.toUpperCase()}] `;
-
-        // Add message
-        output += typeof message === 'object' ? JSON.stringify(message) : message;
-
-        // Add metadata if available
-        if (metadata) {
-            output += ` ${typeof metadata === 'object' ? Object.keys(metadata).length === 0 ? '' : JSON.stringify(metadata) : metadata}`;
-        }
-
-        return output;
     }
 
     // Helper to check if this transport should handle this log level
