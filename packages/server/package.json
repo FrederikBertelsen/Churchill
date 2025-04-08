@@ -1,22 +1,11 @@
 {
-    "name": "@churchill/server",
+    "name": "churchill-logger",
     "version": "0.1.0",
     "main": "./src/index.js",
     "scripts": {
-        "build": "mkdir -p dist && cp -r src/* dist/",
-        "dev": "nodemon --watch src --ext js --exec 'npm run build'",
-        "test": "jest"
+        "build": "mkdir -p dist && cp -r src/* dist/"
     },
     "dependencies": {
         "http": "0.0.1-security"
-    },
-    "devDependencies": {
-        "jest": "^29.0.0",
-        "nodemon": "^2.0.20"
-    },
-    "jest": {
-        "testMatch": [
-            "**/tests/**/*.js"
-        ]
     }
 }

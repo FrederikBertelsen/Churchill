@@ -1,9 +1,10 @@
-# Churchill - Development Plan
+![Churchill logo](/docs/logo.png)
+
+# Churchill
 
 ## Project Overview
 
 Churchill will consist of two main components:
-
 1. **@churchill/client** - Browser-side logging library (distributed via CDN)
 2. **@churchill/server** - Node.js server component (distributed via npm)
 

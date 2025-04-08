@@ -1,16 +1,16 @@
-const defaultLevels = {
-    fatal: 10,
-    error: 20,
-    warn: 30,
-    info: 40,
-    debug: 50,
-    trace: 60,
-};
-
+'use strict';
 
 const defaultOptions = {
-    levels: defaultLevels,
+    levels: {
+        error: 10,
+        warn: 20,
+        info: 30,
+        debug: 40,
+        trace: 50,
+    },
     level: 'info',
+    useTimestamp: true,
 };
+
 
 module.exports = defaultOptions;

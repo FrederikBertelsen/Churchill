@@ -14,9 +14,13 @@ var _createClass = function () {
     };
 }();
 
+// Runtime type checking to ensure proper instantiation with 'new' keyword
+// Prevents calling the constructor as a regular function
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+// Churchill: A flexible client-side logging system with console and server reporting capabilities
 var Churchill = function () {
+    // Constructor: Sets up default configuration values for a new logger instance
     function Churchill() {
         _classCallCheck(this, Churchill);
         this.console = true;
@@ -26,6 +30,8 @@ var Churchill = function () {
         this.useragent = false;
     }
 
+    // Dynamically generates logging methods (error, warn, info, debug, trace)
+    // This creates functions that will be attached to the Churchill prototype
     function _createLevels() {
         var _levelFunctions = []
         var _dict = {
@@ -89,6 +95,7 @@ var Churchill = function () {
         xhr.send(JSON.stringify(payload));
 
     }
+    
     _createClass(Churchill,
 
         [
