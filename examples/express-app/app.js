@@ -7,7 +7,7 @@ const port = 3000
 // Create a logger with multiple transports
 const logger = churchill.create({
   transports: [
-    new churchill.transports.Console({ timestamp: true }),
+    new churchill.transports.Console(),
     new churchill.transports.File({
       filename: path.join(__dirname, 'logs', 'app.log'),
     }),
@@ -26,6 +26,8 @@ app.get('/', (req, res) => {
 
 // Create a specific endpoint for logs
 app.post('/logs', (req, res) => {
+  console.log('Received log:', req.body)
+
   const success = logger.processLog(req.body)
   res.status(success ? 200 : 400).json({
     status: success ? 'ok' : 'error'
