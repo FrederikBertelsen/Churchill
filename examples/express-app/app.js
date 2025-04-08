@@ -26,8 +26,6 @@ app.get('/', (req, res) => {
 
 // Create a specific endpoint for logs
 app.post('/logs', (req, res) => {
-  console.log('Received log:', req.body)
-
   const success = logger.processLog(req.body)
   res.status(success ? 200 : 400).json({
     status: success ? 'ok' : 'error'
