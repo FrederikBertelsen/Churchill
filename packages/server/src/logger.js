@@ -48,8 +48,8 @@ class Logger {
      */
     _setupLogMethods() {
         // Internal log function used by all log levels
-        const log = (level, data, metadata = {}, createMetadata = true) => {
-            if (defaultOptions.levels[level] <= defaultOptions.levels[this.level]) {
+        const log = (level, data, metadata = {}, createMetadata = true, forceLog = false) => {
+            if (forceLog || defaultOptions.levels[level] <= defaultOptions.levels[this.level]) {
 
                 if (createMetadata) {
                     if (this.useTimestamp) {
@@ -58,7 +58,7 @@ class Logger {
                 }
 
                 this.transports.forEach(transport => {
-                    if (transport.shouldLog(level)) {
+                    if (forceLog || transport.shouldLog(level)) {
                         transport.log(level, data, metadata);
                     }
                 });
@@ -95,7 +95,7 @@ class Logger {
                 const data = payload.data || '';
                 const metadata = payload.metadata || {};
 
-                log(level, data, metadata, false);
+                log(level, data, metadata, false, true);
                 return true;
             } catch (err) {
                 console.error(`Error processing log: ${err.message}`);
