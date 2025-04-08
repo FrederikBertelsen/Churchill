@@ -7,8 +7,8 @@ class ConsoleTransport extends Transport {
         super(options);
     }
 
-    log(level, message, metadata) {
-        const output = this.logToString(level, message, metadata);
+    log(level, data, metadata) {
+        const output = this.logToString(level, data, metadata);
 
         // Use appropriate console method based on level
         if (level === 'error') {

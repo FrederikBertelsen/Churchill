@@ -24,7 +24,6 @@ class Logger {
             this.transports = [new ConsoleTransport({ level: this.level })];
         }
 
-
         return this;
     }
 
@@ -49,29 +48,29 @@ class Logger {
      */
     _setupLogMethods() {
         // Internal log function used by all log levels
-        const log = (level, message, metadata = {}, createMetadata = true) => {
+        const log = (level, data, metadata = {}, createMetadata = true) => {
             if (defaultOptions.levels[level] <= defaultOptions.levels[this.level]) {
 
                 if (createMetadata) {
                     if (this.useTimestamp) {
-                        metadata.timestamp = Math.floor(Date.now() / 1000);
+                        metadata.time = Math.floor(Date.now() / 1000);
                     }
                 }
 
                 this.transports.forEach(transport => {
                     if (transport.shouldLog(level)) {
-                        transport.log(level, message, metadata);
+                        transport.log(level, data, metadata);
                     }
                 });
             }
         };
 
         // Define all public logging methods explicitly
-        this.trace = (message) => log('trace', message, { trace: new Error().stack });
-        this.debug = (message) => log('debug', message, {});
-        this.info = (message) => log('info', message, {});
-        this.warn = (message) => log('warn', message, {});
-        this.error = (message) => log('error', message, {});
+        this.trace = (data) => log('trace', data, { trace: new Error().stack });
+        this.debug = (data) => log('debug', data, {});
+        this.info = (data) => log('info', data, {});
+        this.warn = (data) => log('warn', data, {});
+        this.error = (data) => log('error', data, {});
 
         // Process log implementation
         this.processLog = (payload) => {
@@ -93,10 +92,10 @@ class Logger {
                 }
 
                 const level = payload.level || 'info';
-                const message = payload.message || payload.data || '';
+                const data = payload.data || '';
                 const metadata = payload.metadata || {};
 
-                log(level, message, metadata, false);
+                log(level, data, metadata, false);
                 return true;
             } catch (err) {
                 console.error(`Error processing log: ${err.message}`);

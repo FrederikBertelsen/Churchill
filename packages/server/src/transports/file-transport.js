@@ -16,8 +16,18 @@ class FileTransport extends Transport {
         this._ensureDirectory();
     }
 
-    log(level, message, metadata) {
-        const output = this.logToString(level, message, metadata);
+    logToString(level, data, metadata) {
+        if (data instanceof String) {
+            data = { message: data };
+        }
+        json = { level: level, data: data, metadata: metadata };
+        
+        return JSON.stringify(json);
+    }
+
+
+    log(level, data, metadata) {
+        const output = this.logToString(level, data, metadata);
 
         try {
             // Append to file

@@ -44,29 +44,36 @@ var Churchill = function () {
         Object.keys(_dict).map(function (level) {
             _levelFunctions.push({
                 key: level.toString(),
-                value: function (message) {
-
-                    var payload = {
-                        level: level,
-                        data: message,
-                        time: Date.now()
-                    };
-
-                    if (this.useragent) {
-                        payload.useragent = window.navigator.userAgent;
-                    } else {
-                        payload.useragent = "";
-                    }
-
-
+                value: function (data) {
+                    // check if we should log at the log level
                     if (_dict[level] <= _dict[this.level]) {
-                        if (this.console === true) {
-                            console.log(payload.level, payload.data, payload.time, payload.useragent);
+
+                        // if data is a string, put it in an object with key 'message'
+                        if (typeof data === "string") {
+                            data = {
+                                message: data
+                            }
                         }
 
+                        var metadata = {
+                            time: Date.now(),
+                        }
+
+                        if (this.useragent) {
+                            metadata.useragent = window.navigator.userAgent;
+                        }
+
+                        var payload = {
+                            level: level,
+                            data: data,
+                            metadata: metadata
+                        };
+
+                        if (this.console === true) {
+                            console.log(payload);
+                        }
 
                         if (this.serverUrl !== undefined & this.endpoint !== undefined) {
-
                             // Send logs to the server
                             _sendBatch(this.serverUrl, this.endpoint, payload);
                         }
@@ -95,7 +102,7 @@ var Churchill = function () {
         xhr.send(JSON.stringify(payload));
 
     }
-    
+
     _createClass(Churchill,
 
         [
@@ -103,8 +110,6 @@ var Churchill = function () {
             {
                 key: "config",
                 value: function config() {
-
-
                     var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
                     if (options !== undefined) {
@@ -132,9 +137,9 @@ var Churchill = function () {
                 key: "create",
                 value: function create() {
                     this.console = true;
-                    this.serverUrl = undefined
-                    this.endpoint = undefined
-                    this.level = "info"
+                    this.serverUrl = undefined;
+                    this.endpoint = undefined;
+                    this.level = "info";
 
                     return new Churchill();
                 }
