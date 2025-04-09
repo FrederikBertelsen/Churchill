@@ -13,12 +13,7 @@ class Transport {
             // If level is a number, find the corresponding level name
             this.level = Object.keys(defaultOptions.levels).find(key => defaultOptions.levels[key] === options.level);
         } else {
-            this.level = options.level || defaultOptions.level;
-        }
-
-        // Validate that the level exists in our levels object
-        if (!defaultOptions.levels[this.level]) {
-            this.level = defaultOptions.level; // Fallback to default if level is invalid
+            this.level = options.level; // || defaultOptions.level;
         }
 
         // Store any other custom options passed to the transport

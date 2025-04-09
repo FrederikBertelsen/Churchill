@@ -20,6 +20,11 @@ class Logger {
         // Set transports
         if (options.transports && Array.isArray(options.transports) && options.transports.length > 0) {
             this.transports = options.transports;
+            this.transports.forEach(transport => {
+                if (!transport.level) {
+                    transport.level = this.level;
+                }
+            });
         } else {
             this.transports = [new ConsoleTransport({ level: this.level })];
         }
