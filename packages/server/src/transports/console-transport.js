@@ -7,11 +7,27 @@ class ConsoleTransport extends Transport {
         super(options);
     }
 
+    replaceNewlines(str) {
+        // Convert JSON-escaped newlines back to actual newline characters
+        if (typeof str === 'string') {
+            return str.replace(/\\n/g, '\n');
+        }
+        return str;
+    }
+
     logToString(level, data, metadata) {
         let output = '';
 
+        if (metadata && metadata.time) {
+            const timestamp = String(metadata.time).length >= 13
+                ? metadata.time
+                : metadata.time * 1000;
+            delete metadata.time;
+            output += `${new Date(timestamp).toISOString()} `;
+        }
+
         // Add level
-        output += `${level.toUpperCase()}: `;
+        output += `[${level.toUpperCase()}] `;
 
         // Add data
         if (data && typeof data === 'string') {
@@ -20,24 +36,25 @@ class ConsoleTransport extends Transport {
             if (data.message && Object.keys(data).length === 1) {
                 output += `${data.message} `;
             } else {
-                output += `${JSON.stringify(data)} `;
+                const processedData = JSON.parse(JSON.stringify(data)); // Clone to avoid modifying original
+                let jsonString = JSON.stringify(processedData, null, 2);
+                // Apply newline replacement here
+                jsonString = this.replaceNewlines(jsonString);
+                output += `${jsonString} `;
             }
         }
 
         // Create a formatted display string for metadata
-        if (metadata) {
-            // Create a copy of metadata for display formatting
-            const displayMetadata = { ...metadata };
-
-            // Format timestamp for display only (not modifying original)
-            if (displayMetadata.time) {
-                const timestamp = String(displayMetadata.time).length >= 13
-                    ? displayMetadata.time
-                    : displayMetadata.time * 1000;
-                displayMetadata.time = new Date(timestamp).toLocaleString();
+        if (metadata && Object.keys(metadata).length > 0) {
+            if (metadata.trace) {
+                metadata.trace = '\n' + metadata.trace;
             }
 
-            output += `${JSON.stringify(displayMetadata)} `;
+            const processedMetadata = JSON.parse(JSON.stringify(metadata));
+            let jsonString = JSON.stringify(processedMetadata, null, 2);
+            // Apply newline replacement here too
+            jsonString = this.replaceNewlines(jsonString);
+            output += `${jsonString} `;
         }
 
         return output;
