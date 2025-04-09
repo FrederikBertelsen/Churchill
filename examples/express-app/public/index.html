@@ -151,7 +151,17 @@
             serverUrl: 'http://localhost:3000',
             endpoint: '/logs',
             console: true,
-        })
+            level: 'trace',
+        });
+
+        // Log level values from Churchill
+        const LOG_LEVELS = {
+            "error": 10,
+            "warn": 20,
+            "info": 30,
+            "debug": 40,
+            "trace": 50
+        };
 
         // Set up input type toggle
         document.querySelectorAll('input[name="input-type"]').forEach(radio => {
@@ -181,6 +191,9 @@
                 }
             }
 
+            // Check if this log level would be processed based on the current logger level
+            const willBeSent = LOG_LEVELS[level] <= LOG_LEVELS[logger.level];
+
             switch (level) {
                 case 'trace':
                     logger.trace(payload);
@@ -202,19 +215,21 @@
                     return;
             }
 
-            addLogEntry(payload, level);
+            addLogEntry(payload, level, willBeSent);
         }
 
-        function addLogEntry(payload, level) {
+        function addLogEntry(payload, level, sent) {
             const logArea = document.getElementById('log-area');
             const entry = document.createElement('div');
             entry.className = `log-entry log-${level}`;
 
+            const status = sent ? "Sent" : "Not sent";
+
             if (typeof payload === 'object') {
-                entry.innerHTML = `<div>Sent [${level}]:</div>
+                entry.innerHTML = `<div>${status} [${level}]:</div>
                                  <div class="log-object">${JSON.stringify(payload, null, 2)}</div>`;
             } else {
-                entry.textContent = `Sent [${level}]: ${payload}`;
+                entry.textContent = `${status} [${level}]: ${payload}`;
             }
 
             logArea.prepend(entry);
