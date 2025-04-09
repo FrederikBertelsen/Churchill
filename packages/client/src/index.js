@@ -2,17 +2,19 @@
 
 // ES5 class helper: Creates getter/setter methods and adds them to constructor prototypes
 // This is part of the ES5 class implementation pattern
-var _createClass = function () { 
-    function defineProperties(target, props) { 
-        for (var i = 0; i < props.length; i++) { 
-            var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; 
-            if ("value" in descriptor) descriptor.writable = true; 
-            Object.defineProperty(target, descriptor.key, descriptor); 
-        } 
-    } return function (Constructor, protoProps, staticProps) { 
-        if (protoProps) defineProperties(Constructor.prototype, protoProps); 
-        if (staticProps) defineProperties(Constructor, staticProps); 
-        return Constructor; }; }();
+var _createClass = function () {
+    function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true;
+            if ("value" in descriptor) descriptor.writable = true;
+            Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    } return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) defineProperties(Constructor, staticProps);
+        return Constructor;
+    };
+}();
 
 // Runtime type checking to ensure proper instantiation with 'new' keyword
 // Prevents calling the constructor as a regular function
@@ -56,43 +58,61 @@ var Churchill = function () {
         Object.keys(_dict).map(function (level) {
             _levelFunctions.push({
                 key: level.toString(),
-                value: function (message="") {
+                value: function (data = "") {
                     // Only process logs at or above the configured threshold level
                     if (_dict[level] <= _dict[this.level]) {
                         // Output to browser console if enabled
-                        
-                        
-                        // Prepare payload and differentiate between trace and other levels
-                        
-                        var payload = {
-                            level: level,   
-                            data: message,
-                            time: Date.now(), // Timestamp for the log entry
-                        };
-                        if (level.toString() === "trace"){
 
-                            var e = new Error(message)
-                            payload.data = e.stack.split("\n").slice(1).map(function (line) {
+
+                        // if data is a string, put it in an object with key 'message'
+                        if (typeof data === "string") {
+                            data = {
+                                message: data
+                            }
+                        }
+                        var metadata = {
+                            time: Date.now(),
+                        }
+                        if (this.useragent) {
+                            metadata.useragent = window.navigator.userAgent;
+                        }
+
+                        // Prepare payload and differentiate between trace and other levels
+                        if (level.toString() === "trace") {
+
+                            if (data && data.message) {
+                                var e = new Error(data.message)
+                            } else {
+                                var e = new Error("Trace log");
+
+                            }
+                            data.trace = e.stack.split("\n").slice(1).map(function (line) {
                                 return line.trim();
                             }).join("\n");
 
                             if (this.console === true) {
-                                console.trace(payload.level, payload.time);
-                            }
-                        } else {
-                            if (this.console === true) {
-                                console.log(payload);
+                                console.trace(level, metadata.time);
                             }
                         }
 
-        
+                        var payload = {
+                            level: level,
+                            data: data,
+                            metadata: metadata,
+                        };
+
+                        if (this.console === true) {
+                            console.log(payload);
+                        }
+
+
                         // Add to batch queue if server logging is enabled
                         if (this._batchEnabled) {
                             _batch.push(payload);
                         }
-        
+
                         // Send batch immediately if we've reached the batch size threshold
-                        if (this.serverUrl !== undefined & this.endpoint !== undefined & _batch.length >= _batchSize ) {
+                        if (this.serverUrl !== undefined & this.endpoint !== undefined & _batch.length >= _batchSize) {
                             _sendBatch(this.serverUrl, this.endpoint);
                         }
                     }
@@ -101,7 +121,7 @@ var Churchill = function () {
         })
         return _levelFunctions
     }
-    
+
     // Transmits accumulated logs to the configured server endpoint
     // Uses XMLHttpRequest for broader browser compatibility
     function _sendBatch(serverUrl, endpoint) {
@@ -111,119 +131,119 @@ var Churchill = function () {
             var xhr = new XMLHttpRequest();
             xhr.open("POST", serverUrl + endpoint, true); // Asynchronous POST request
             xhr.setRequestHeader("Content-Type", "application/json");
-            
+
             // Remove all items from batch and prepare for transmission
             var logsToSend = _batch.splice(0, _batch.length);
-            
+
             // Handle HTTP status errors (4xx, 5xx)
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4 && xhr.status >= 400) {
                     console.error('Failed to send log:', xhr.statusText);
                 }
             };
-            
+
             // Handle network-level errors (connection refused, timeout, etc.)
             xhr.onerror = function () {
                 console.error('Failed to send log: Network error');
             };
-            
+
             // Send log data as JSON string
             xhr.send(JSON.stringify(logsToSend));
         }
     }
-    
+
     _createClass(Churchill,
-        [ 
-    // Inject dynamically created logging methods (error, warn, info, debug, trace)
-    ..._createLevels(),
-        {
-        key: "config",
-        value: function config() {
-            // Accept configuration object with optional parameters
-            var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+        [
+            // Inject dynamically created logging methods (error, warn, info, debug, trace)
+            ..._createLevels(),
+            {
+                key: "config",
+                value: function config() {
+                    // Accept configuration object with optional parameters
+                    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-            if (options !== undefined) {
-                // Configure console output (true/false)
-                if (options.console !== undefined) {
-                    this.console = options.console;
-                }
-                
-                // Configure server URL for remote logging
-                if (options.serverUrl !== undefined) {
-                    this.serverUrl = options.serverUrl;
-                }
-                
-                // Configure server port if needed
-                if (options.port !== undefined) {
-                    this.port = options.port;
-                }
-                
-                // Set API endpoint path for log submission
-                if (options.endpoint !== undefined) {
-                    this.endpoint = options.endpoint;
-                }
+                    if (options !== undefined) {
+                        // Configure console output (true/false)
+                        if (options.console !== undefined) {
+                            this.console = options.console;
+                        }
 
-                if (options.level !== undefined) {
-                    // Validate log level against predefined dictionary
-                    if (options.level in _dict) {
-                        this.level = options.level;
-                    } else {
-                        throw new Error("Invalid log level: " + options.level);
+                        // Configure server URL for remote logging
+                        if (options.serverUrl !== undefined) {
+                            this.serverUrl = options.serverUrl;
+                        }
+
+                        // Configure server port if needed
+                        if (options.port !== undefined) {
+                            this.port = options.port;
+                        }
+
+                        // Set API endpoint path for log submission
+                        if (options.endpoint !== undefined) {
+                            this.endpoint = options.endpoint;
+                        }
+
+                        if (options.level !== undefined) {
+                            // Validate log level against predefined dictionary
+                            if (options.level in _dict) {
+                                this.level = options.level;
+                            } else {
+                                throw new Error("Invalid log level: " + options.level);
+                            }
+                        }
+
+                        // When both server URL and endpoint are provided, enable batch mode
+                        // and set up automatic transmission
+                        if (options.serverUrl !== undefined & options.endpoint !== undefined) {
+                            this._batchEnabled = true
+                            _classCallCheck(this, Churchill);
+
+
+
+                            // Schedule periodic batch transmissions and remove if logger is reconfigured
+                            _loggerintervals.forEach((element, index) => {
+                                // If logger already exists, clear the existing interval
+                                if (_loggerintervals[index].value !== undefined) {
+                                    clearInterval(_loggerintervals[index].value);
+                                    _loggerintervals[index].value = undefined;
+                                }
+                                console.log(element.value)
+                                if (element.value === undefined) {
+                                    const intervalId = setInterval(() => {
+                                        _sendBatch(options.serverUrl, options.endpoint);
+                                    }, _batchInterval);
+                                    _loggerintervals[index] = { key: this.id, value: intervalId };
+                                    console.log("Interval set for logger ID: " + this.id, " Interval ID: " + intervalId);
+                                }
+
+                            });
+
+
+                            // Ensure any remaining logs are sent when page unloads
+                            window.addEventListener("beforeunload", () => {
+                                _sendBatch(options.serverUrl, options.endpoint)
+                            });
+                        }
                     }
+
+                    // Return this instance for method chaining
+                    return this;
                 }
-                
-                // When both server URL and endpoint are provided, enable batch mode
-                // and set up automatic transmission
-                if (options.serverUrl !== undefined & options.endpoint !== undefined) {
-                    this._batchEnabled = true
-                    _classCallCheck(this, Churchill);
-                    
+            }], [{
+                // Factory method: Creates and returns a new pre-configured logger instance
+                // Provides a cleaner interface than using the constructor directly
+                key: "create",
+                value: function create() {
+                    this.console = true;
+                    this.serverUrl = undefined
+                    this.endpoint = undefined
+                    this.level = "info"
+                    this.id = _loggerintervals.length + 1
+                    _loggerintervals.push({ key: this.id, value: undefined });
 
-                    
-                    // Schedule periodic batch transmissions and remove if logger is reconfigured
-                    _loggerintervals.forEach((element, index) => {
-                    // If logger already exists, clear the existing interval
-                        if (_loggerintervals[index].value !== undefined) {
-                            clearInterval(_loggerintervals[index].value);
-                            _loggerintervals[index].value = undefined;
-                        }
-                        console.log(element.value)
-                        if (element.value === undefined) {
-                            const intervalId = setInterval(() => {
-                                _sendBatch(options.serverUrl, options.endpoint);
-                            }, _batchInterval);
-                            _loggerintervals[index] = { key: this.id, value: intervalId };
-                            console.log("Interval set for logger ID: " + this.id, " Interval ID: " + intervalId);
-                        }
-                        
-                    });
-
-                    
-                    // Ensure any remaining logs are sent when page unloads
-                    window.addEventListener("beforeunload", () => {
-                        _sendBatch(options.serverUrl, options.endpoint)
-                    });
+                    return new Churchill();
                 }
-            }
-
-            // Return this instance for method chaining
-            return this;
-        }
-    }], [{
-        // Factory method: Creates and returns a new pre-configured logger instance
-        // Provides a cleaner interface than using the constructor directly
-        key: "create",
-        value: function create() {
-            this.console = true;
-            this.serverUrl = undefined
-            this.endpoint = undefined
-            this.level = "info"
-            this.id = _loggerintervals.length + 1
-            _loggerintervals.push({ key: this.id, value: undefined });
-
-            return new Churchill();
-        }
-    }]);
+            }]);
 
     return Churchill;
 }();
