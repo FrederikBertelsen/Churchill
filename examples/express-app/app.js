@@ -1,11 +1,13 @@
 const express = require('express')
 const churchill = require('churchill')
 const path = require('path')
+
 const app = express()
 const port = 3000
 
 // Create a logger with multiple transports
 const logger = churchill.create({
+  level: 'trace',
   transports: [
     new churchill.transports.Console(),
     new churchill.transports.File({
