@@ -16,7 +16,6 @@ class ConsoleTransport extends Transport {
         // Add data
         if (data && typeof data === 'string') {
             output += `"${data}" `;
-            // if data is an object, and the only key is 'message', use that
         } else if (data && typeof data === 'object') {
             if (data.message && Object.keys(data).length === 1) {
                 output += `${data.message} `;
@@ -25,19 +24,20 @@ class ConsoleTransport extends Transport {
             }
         }
 
-        // Add timestamp if available
-        if (metadata && typeof data === 'string') {
-            output += `${data} `;
-        } else if (metadata && typeof data === 'object') {
-            // Add timestamp if available
-            if (metadata.time) {
-                // Check if timestamp is already in milliseconds (13 digits) or needs conversion from seconds
-                const timestamp = metadata.time.toString().length >= 13 ? metadata.time : metadata.time * 1000;
-                const date = new Date(timestamp);
-                metadata.time = date.toLocaleString();
+        // Create a formatted display string for metadata
+        if (metadata) {
+            // Create a copy of metadata for display formatting
+            const displayMetadata = { ...metadata };
+
+            // Format timestamp for display only (not modifying original)
+            if (displayMetadata.time) {
+                const timestamp = String(displayMetadata.time).length >= 13
+                    ? displayMetadata.time
+                    : displayMetadata.time * 1000;
+                displayMetadata.time = new Date(timestamp).toLocaleString();
             }
 
-            output += `${JSON.stringify(metadata)} `;
+            output += `${JSON.stringify(displayMetadata)} `;
         }
 
         return output;
