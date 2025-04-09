@@ -66,7 +66,11 @@ class Logger {
         };
 
         // Define all public logging methods explicitly
-        this.trace = (data) => log('trace', data, { trace: new Error().stack });
+        this.trace = (data) => {
+            const error = new Error();
+            Error.captureStackTrace(error, this.trace);
+            log('trace', data, { trace: error.stack });
+        };
         this.debug = (data) => log('debug', data, {});
         this.info = (data) => log('info', data, {});
         this.warn = (data) => log('warn', data, {});
