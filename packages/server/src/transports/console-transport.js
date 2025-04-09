@@ -16,63 +16,91 @@ class ConsoleTransport extends Transport {
     }
 
     logToString(level, data, metadata) {
-        let output = '';
-        
-        // Create deep copies to avoid modifying original objects
-        const metadataCopy = metadata ? JSON.parse(JSON.stringify(metadata)) : null;
-        
-        if (metadataCopy && metadataCopy.time) {
-            const timestamp = String(metadataCopy.time).length >= 13
-                ? metadataCopy.time
-                : metadataCopy.time * 1000;
-            delete metadataCopy.time;
-            output += `${new Date(timestamp).toISOString()} `;
-        }
-
-        // Add level
-        output += `[${level.toUpperCase()}] `;
-
-        // Add data
-        if (data && typeof data === 'string') {
-            output += `"${data}" `;
-        } else if (data && typeof data === 'object') {
-            // Create deep copy of data
-            const processedData = JSON.parse(JSON.stringify(data));
-            if (data.message && Object.keys(data).length === 1) {
-                output += `${data.message} `;
-            } else {
-                let jsonString = JSON.stringify(processedData, null, 2);
-                // Apply newline replacement here
-                jsonString = this.replaceNewlines(jsonString);
-                output += `${jsonString} `;
+        try {
+            let output = '';
+            
+            // Create deep copies to avoid modifying original objects
+            let metadataCopy;
+            try {
+                metadataCopy = metadata ? JSON.parse(JSON.stringify(metadata)) : null;
+            } catch (err) {
+                console.error(`Error processing metadata: ${err.message}`);
+                metadataCopy = { error: 'Failed to process metadata object' };
             }
-        }
-
-        // Create a formatted display string for metadata
-        if (metadataCopy && Object.keys(metadataCopy).length > 0) {
-            if (metadataCopy.trace) {
-                metadataCopy.trace = '\n' + metadataCopy.trace;
+            
+            if (metadataCopy && metadataCopy.time) {
+                try {
+                    const timestamp = String(metadataCopy.time).length >= 13
+                        ? metadataCopy.time
+                        : metadataCopy.time * 1000;
+                    delete metadataCopy.time;
+                    output += `${new Date(timestamp).toISOString()} `;
+                } catch (err) {
+                    output += `[Invalid Timestamp] `;
+                }
             }
 
-            let jsonString = JSON.stringify(metadataCopy, null, 2);
-            // Apply newline replacement here too
-            jsonString = this.replaceNewlines(jsonString);
-            output += `${jsonString} `;
-        }
+            // Add level
+            output += `[${level.toUpperCase()}] `;
 
-        return output;
+            // Add data
+            if (data && typeof data === 'string') {
+                output += `"${data}" `;
+            } else if (data && typeof data === 'object') {
+                try {
+                    // Create deep copy of data
+                    const processedData = JSON.parse(JSON.stringify(data));
+                    if (data.message && Object.keys(data).length === 1) {
+                        output += `${data.message} `;
+                    } else {
+                        let jsonString = JSON.stringify(processedData, null, 2);
+                        // Apply newline replacement here
+                        jsonString = this.replaceNewlines(jsonString);
+                        output += `${jsonString} `;
+                    }
+                } catch (err) {
+                    output += `[Complex Object: ${err.message}] `;
+                }
+            }
+
+            // Create a formatted display string for metadata
+            if (metadataCopy && Object.keys(metadataCopy).length > 0) {
+                if (metadataCopy.trace) {
+                    metadataCopy.trace = '\n' + metadataCopy.trace;
+                }
+
+                try {
+                    let jsonString = JSON.stringify(metadataCopy, null, 2);
+                    // Apply newline replacement here too
+                    jsonString = this.replaceNewlines(jsonString);
+                    output += `${jsonString} `;
+                } catch (err) {
+                    output += `[Complex Metadata: ${err.message}] `;
+                }
+            }
+
+            return output;
+        } catch (err) {
+            return `[LOG FORMAT ERROR: ${err.message}] Original level: ${level}`;
+        }
     }
 
     log(level, data, metadata) {
-        const output = this.logToString(level, data, metadata);
+        try {
+            const output = this.logToString(level, data, metadata);
 
-        // Use appropriate console method based on level
-        if (level === 'error') {
-            console.error(output);
-        } else if (level === 'warn') {
-            console.warn(output);
-        } else {
-            console.log(output);
+            // Use appropriate console method based on level
+            if (level === 'error') {
+                console.error(output);
+            } else if (level === 'warn') {
+                console.warn(output);
+            } else {
+                console.log(output);
+            }
+        } catch (err) {
+            // Fallback for any unexpected errors during logging
+            console.error(`Churchill ConsoleTransport Error: ${err.message}`);
+            console.error(`Failed to log message with level: ${level}`);
         }
     }
 }
