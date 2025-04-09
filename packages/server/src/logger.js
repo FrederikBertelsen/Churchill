@@ -74,7 +74,8 @@ class Logger {
         this.trace = (data) => {
             const error = new Error();
             Error.captureStackTrace(error, this.trace);
-            log('trace', data, { trace: error.stack });
+            const tracestack = error.stack.split('\n').slice(1).join('\n');
+            log('trace', data, { trace: tracestack });
         };
         this.debug = (data) => log('debug', data, {});
         this.info = (data) => log('info', data, {});
