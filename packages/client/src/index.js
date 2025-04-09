@@ -35,7 +35,7 @@ var _batch = [];
 // Number of log entries to collect before sending a batch to the server
 var _batchSize = 10;
 // Time in milliseconds between automatic batch transmissions (10 seconds)
-var _batchInterval = 10000;
+var _batchInterval = 100;
 
 var _loggerintervals = [] // Array to store logger IDs for batch processing
 
@@ -71,6 +71,7 @@ var Churchill = function () {
                             }
                         }
                         var metadata = {
+                            url: window.location.href,
                             time: Date.now(),
                         }
                         if (this.useragent) {
@@ -79,7 +80,6 @@ var Churchill = function () {
 
                         // Prepare payload and differentiate between trace and other levels
                         if (level.toString() === "trace") {
-
                             if (data && data.message) {
                                 var e = new Error(data.message)
                             } else {
