@@ -68,7 +68,7 @@ var Churchill = function () {
                             } else {
                                 var e = new Error("Trace log");
                             }
-                            data.trace = e.stack.split("\n").slice(1).map(function (line) {
+                            metadata.trace = e.stack.split("\n").slice(1).map(function (line) {
                                 return line.trim();
                             }).join("\n");
 
