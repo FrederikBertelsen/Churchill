@@ -18,6 +18,11 @@ var _createClass = function () {
 // Runtime type checking to ensure proper instantiation with 'new' keyword
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var batch = []
+var batchSize = 5; // Number of logs to send in a single batch
+var batchTimeout = 1000; // Time in milliseconds to wait before sending the batch
+
+
 // Log level priority mapping - lower values indicate higher priority
 var _dict = {
     "error": 10,  // Highest priority - critical failures requiring immediate attention
@@ -88,7 +93,8 @@ var Churchill = function () {
 
                         // Send logs immediately if server logging is configured
                         if (this.serverUrl !== undefined) {
-                            _sendLog(this.serverUrl, payload);
+                            batch.push(payload);
+                            //_sendLog(this.serverUrl, payload);
                         }
                     }
                 }
@@ -139,11 +145,6 @@ var Churchill = function () {
                         // Configure server URL for remote logging
                         if (options.serverUrl !== undefined) {
                             this.serverUrl = options.serverUrl;
-                        }
-
-                        // Configure server port if needed
-                        if (options.port !== undefined) {
-                            this.port = options.port;
                         }
 
                         if (options.level !== undefined) {
