@@ -33,7 +33,6 @@ var Churchill = function () {
     function Churchill() {
         this.console = true;        // By default, output logs to console
         this.serverUrl = undefined; // Remote server URL, undefined means no remote logging
-        this.endpoint = undefined;  // API endpoint path for log submission
         this.level = 'info';        // Default log threshold - only info and higher priority will be logged
         this.useragent = false;     // By default, don't add user agent to logs
     }
@@ -88,8 +87,8 @@ var Churchill = function () {
                         }
 
                         // Send logs immediately if server logging is configured
-                        if (this.serverUrl !== undefined & this.endpoint !== undefined) {
-                            _sendLog(this.serverUrl, this.endpoint, payload);
+                        if (this.serverUrl !== undefined) {
+                            _sendLog(this.serverUrl, payload);
                         }
                     }
                 }
@@ -98,11 +97,11 @@ var Churchill = function () {
         return _levelFunctions
     }
 
-    // Transmits log to the configured server endpoint
+    // Transmits log to the configured server url
     // Uses XMLHttpRequest for broader browser compatibility
-    function _sendLog(serverUrl, endpoint, payload) {
+    function _sendLog(serverUrl, payload) {
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", serverUrl + endpoint, true); // Asynchronous POST request
+        xhr.open("POST", serverUrl, true); // Asynchronous POST request
         xhr.setRequestHeader("Content-Type", "application/json");
 
         // Handle HTTP status errors (4xx, 5xx)
@@ -147,11 +146,6 @@ var Churchill = function () {
                             this.port = options.port;
                         }
 
-                        // Set API endpoint path for log submission
-                        if (options.endpoint !== undefined) {
-                            this.endpoint = options.endpoint;
-                        }
-
                         if (options.level !== undefined) {
                             // Validate log level against predefined dictionary
                             if (options.level in _dict) {
@@ -176,7 +170,6 @@ var Churchill = function () {
                 value: function create() {
                     this.console = true;
                     this.serverUrl = undefined
-                    this.endpoint = undefined
                     this.level = "info"
 
                     return new Churchill();
