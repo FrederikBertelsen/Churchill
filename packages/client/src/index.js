@@ -141,11 +141,6 @@ var Churchill = function () {
                             this.serverUrl = options.serverUrl;
                         }
 
-                        // Configure server port if needed
-                        if (options.port !== undefined) {
-                            this.port = options.port;
-                        }
-
                         if (options.level !== undefined) {
                             // Validate log level against predefined dictionary
                             if (options.level in _dict) {
