@@ -18,9 +18,9 @@ var _createClass = function () {
 // Runtime type checking to ensure proper instantiation with 'new' keyword
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var batch = []
-var batchSize = 5; // Number of logs to send in a single batch
-var batchTimeout = 1000; // Time in milliseconds to wait before sending the batch
+var _batch = []
+var _batchSize = 5; // Number of logs to send in a single batch
+var _batchTimeout = 5000; // Time in milliseconds to wait before sending the batch
 
 
 // Log level priority mapping - lower values indicate higher priority
@@ -40,6 +40,7 @@ var Churchill = function () {
         this.serverUrl = undefined; // Remote server URL, undefined means no remote logging
         this.level = 'info';        // Default log threshold - only info and higher priority will be logged
         this.useragent = false;     // By default, don't add user agent to logs
+        this.batchInterval = undefined; // Interval for sending batched logs
     }
 
     // Dynamically generates logging methods (error, warn, info, debug, trace)
@@ -93,8 +94,11 @@ var Churchill = function () {
 
                         // Send logs immediately if server logging is configured
                         if (this.serverUrl !== undefined) {
-                            batch.push(payload);
-                            //_sendLog(this.serverUrl, payload);
+                            _batch.push(payload);
+                            if (_batch.length > _batchSize) {
+                                _sendLog(this.serverUrl, _batch);
+                                _batch = []
+                            }
                         }
                     }
                 }
@@ -145,6 +149,23 @@ var Churchill = function () {
                         // Configure server URL for remote logging
                         if (options.serverUrl !== undefined) {
                             this.serverUrl = options.serverUrl;
+                            if (this.batchInterval == undefined) {
+                                this.batchInterval = setInterval(() => {
+                                    if (_batch.length > 0) {
+                                        _sendLog(this.serverUrl, _batch);
+                                        _batch = []
+                                    }
+                                }, _batchTimeout);
+                            } else {
+                                clearInterval(this.batchInterval);
+                                this.batchInterval = undefined;
+                                if (_batch.length > 0) {
+                                    this.batchInterval = setInterval(() => {
+                                        _sendLog(this.serverUrl, _batch);
+                                        _batch = [];
+                                    }, _batchTimeout);
+                                }
+                            }
                         }
 
                         if (options.level !== undefined) {
