@@ -111,7 +111,7 @@ var Churchill = function () {
     // Uses XMLHttpRequest for broader browser compatibility
     function _sendLog(serverUrl, payload) {
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", serverUrl, true); // Asynchronous POST request
+        xhr.open("POST", serverUrl, false); // Asynchronous POST request
         xhr.setRequestHeader("Content-Type", "application/json");
 
         // Handle HTTP status errors (4xx, 5xx)
