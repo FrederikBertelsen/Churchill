@@ -10,9 +10,7 @@ const logger = churchill.create({
   level: 'trace',
   transports: [
     new churchill.transports.Console(),
-    new churchill.transports.File({
-      filename: path.join(__dirname, 'logs', 'app.log'),
-    }),
+    new churchill.transports.File(),
   ]
 })
 
