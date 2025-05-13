@@ -1,26 +1,13 @@
 "use strict";
 
 // ES5 class helper: Creates getter/setter methods and adds them to constructor prototypes
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true;
-            if ("value" in descriptor) descriptor.writable = true;
-            Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    } return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) defineProperties(Constructor, staticProps);
-        return Constructor;
-    };
-}();
-
+var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}} return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();
 // Runtime type checking to ensure proper instantiation with 'new' keyword
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _batch = []
-var _batchSize = 5; // Number of logs to send in a single batch
-var _batchTimeout = 5000; // Time in milliseconds to wait before sending the batch
+var _batchSize = 10; // Number of logs to send in a single batch
+var _batchTimeout = 10; // Time in milliseconds to wait before sending the batch
 
 
 // Log level priority mapping - lower values indicate higher priority
