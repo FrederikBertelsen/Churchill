@@ -1,22 +1,14 @@
 "use strict";
 
 // ES5 class helper: Creates getter/setter methods and adds them to constructor prototypes
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true;
-            if ("value" in descriptor) descriptor.writable = true;
-            Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    } return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) defineProperties(Constructor, staticProps);
-        return Constructor;
-    };
-}();
-
+var _createClass = function () {function defineProperties(target, props) {for (var i = 0; i < props.length; i++) {var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);}} return function (Constructor, protoProps, staticProps) {if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;};}();
 // Runtime type checking to ensure proper instantiation with 'new' keyword
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var _batch = []
+var _batchSize = 10; // Number of logs to send in a single batch
+var _batchTimeout = 10; // Time in milliseconds to wait before sending the batch
+
 
 // Log level priority mapping - lower values indicate higher priority
 var _dict = {
@@ -35,6 +27,7 @@ var Churchill = function () {
         this.serverUrl = undefined; // Remote server URL, undefined means no remote logging
         this.level = 'info';        // Default log threshold - only info and higher priority will be logged
         this.useragent = false;     // By default, don't add user agent to logs
+        this.batchInterval = undefined; // Interval for sending batched logs
     }
 
     // Dynamically generates logging methods (error, warn, info, debug, trace)
@@ -88,7 +81,11 @@ var Churchill = function () {
 
                         // Send logs immediately if server logging is configured
                         if (this.serverUrl !== undefined) {
-                            _sendLog(this.serverUrl, payload);
+                            _batch.push(payload);
+                            if (_batch.length > _batchSize) {
+                                _sendLog(this.serverUrl, _batch);
+                                _batch = []
+                            }
                         }
                     }
                 }
@@ -101,7 +98,7 @@ var Churchill = function () {
     // Uses XMLHttpRequest for broader browser compatibility
     function _sendLog(serverUrl, payload) {
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", serverUrl, false); // Synchronous POST request
+        xhr.open("POST", serverUrl, false); // Asynchronous POST request
         xhr.setRequestHeader("Content-Type", "application/json");
 
         // Handle HTTP status errors (4xx, 5xx)
@@ -139,6 +136,23 @@ var Churchill = function () {
                         // Configure server URL for remote logging
                         if (options.serverUrl !== undefined) {
                             this.serverUrl = options.serverUrl;
+                            if (this.batchInterval == undefined) {
+                                this.batchInterval = setInterval(() => {
+                                    if (_batch.length > 0) {
+                                        _sendLog(this.serverUrl, _batch);
+                                        _batch = []
+                                    }
+                                }, _batchTimeout);
+                            } else {
+                                clearInterval(this.batchInterval);
+                                this.batchInterval = undefined;
+                                if (_batch.length > 0) {
+                                    this.batchInterval = setInterval(() => {
+                                        _sendLog(this.serverUrl, _batch);
+                                        _batch = [];
+                                    }, _batchTimeout);
+                                }
+                            }
                         }
 
                         if (options.level !== undefined) {
