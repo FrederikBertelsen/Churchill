@@ -2,34 +2,46 @@
 
 # Churchill
 
-A JS logger meant for easy logging from browsers to a server endpoint
+[![NPM Downloads](https://img.shields.io/npm/d18m/churchill-logger?label=Logger%20Downloads)](https://www.npmjs.com/package/churchill-logger)
+[![NPM Client Downloads](https://img.shields.io/npm/d18m/churchill-client?label=Client%20Downloads)](https://www.npmjs.com/package/churchill-client)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat&labelColor=gray&color=blue)](https://github.com/FrederikBertelsen/Churchill/issues)
+
+A JS logger made for easy logging from browsers to a server endpoint
 
 ## Project Overview
 
 Churchill will consist of two main components:
 1. **@churchill/client** - Browser-side logging library (distributed via CDN)
-2. **@churchill/server** - Node.js server component (distributed via npm)
+2. **@churchill/server** - Node.js server component (distributed via NPM)
 
-# Installing
+# Installation
+## Install - Node.js
 ```bash
 npm i churchill-logger
+```
+## Install - Browser
+Simply add this tag to 
+```HTML
+<script src="https://unpkg.com/churchill-client@latest/dist/churchill.min.js"></script>
 ```
 
 # Using
 
 ## Quickstart
 
-If you quickly want to start sending logs from the browser to a server it can be done as such
-## Browser
+If you just want to start sending logs from the browser to a server it can be done as such
 
+### Browser
 ```HTML
-<script src="https://unpkg.com/churchill-client@0.1.1/dist/churchill.min.js"></script>
+<script src="https://unpkg.com/churchill-client@latest/dist/churchill.min.js"></script>
 <script>
     const logger = Churchill.create();
 
     logger.config({
-        console: false, //Turns of console logging
-        serverUrl: 'https://<url>/<endpoint>' //Url for the server
+        serverUrl: "<URL>", // The log endpoint of the server
+        console: true, // Toggles logging to the browser console
+        level: 'debug', // The log-level which determines what types of logs that will be logged
+        useragent: false // Toggles of adding the user agent to the log object
     })
 
     logger.info("Hello World!")
@@ -37,57 +49,24 @@ If you quickly want to start sending logs from the browser to a server it can be
 ```
 
 Then you create an endpoint with your favorite web application framework and within you put this
-## Server
+### Server (Express example)
 ```JS
 const churchill = require('churchill-logger/dist');
 
 const logger = churchill.create();
 
-logger.processLog(<payload>)
-```
+// Create log endpoint, and pass log objects to Churchill
+app.post('/logs', (req, res) => {
 
-This will then start logging messages from the browser into the servers terminal
+  const success = logger.processLog(req.body)
 
-## Config
-
-There are different parameters you can use to configure your logger
-
-```JS
-logger.config({
-    serverUrl: "<Url of the server>",//url of the server
-    console: true,//wether it should log to the console
-    level: 'debug',//The level of the logger decides that only logs with the same level or higher gets logged
-    useragent: false // Wether it should add the useragent to the log or not
+  res.status(success ? 200 : 400).json({
+    status: success ? 'ok' : 'error'
+  })
 })
 ```
+> [!NOTE]  
+> Check our examples for other frameworks
 
-## Repository Structure
-```
-/Churchill/
-├── packages/
-│   ├── client/                # Browser client library
-│   │   ├── src/
-│   │   │   ├── index.js       # Main entry point
-│   │   │   ├── logger.js      # Core logging functionality
-│   │   │   └── transport.js   # HTTP transport
-│   │   ├── dist/              # Built files for distribution
-│   │   │   ├── logger.min.js  # For CDN/script tag
-│   │   │   └── logger.esm.js  # For bundlers/ES modules
-│   │   └── package.json
-│   │
-│   └── server/                # Node.js server component
-│       ├── src/
-│       │   ├── index.js       # Main entry point
-│       │   ├── logger.js      # Core logging functionality
-│       │   ├── receiver.js    # HTTP endpoint for receiving logs
-│       │   └── writer.js      # File storage implementation
-│       └── package.json
-│
-├── examples/                  # Example implementations
-│   ├── react-app/
-│   ├── vanilla-js/
-│   └── ...
-│
-└── package.json          # Root package.json for dev dependencies
-```
 
+This will then start logging messages from the browser into the servers terminal
