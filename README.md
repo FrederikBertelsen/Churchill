@@ -2,20 +2,43 @@
 
 # Churchill
 
-[![NPM Downloads](https://img.shields.io/npm/d18m/churchill-logger?label=Logger%20Downloads)](https://www.npmjs.com/package/churchill-logger)
-[![NPM Client Downloads](https://img.shields.io/npm/d18m/churchill-client?label=Client%20Downloads)](https://www.npmjs.com/package/churchill-client)
+[![NPM Client Downloads](https://img.shields.io/npm/d18m/churchill-client?label=NPM%20Installs)](https://www.npmjs.com/package/churchill-client)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat&labelColor=gray&color=blue)](https://github.com/FrederikBertelsen/Churchill/issues)
 
-A JS logger made for easy logging from browsers to a server endpoint
 
-## Project Overview
+⭐ Star us on GitHub — it motivates us a lot!
+
+[![Share](https://img.shields.io/badge/share-000000?logo=x&logoColor=white)](https://x.com/intent/tweet?text=Check%20out%20this%20project%20on%20GitHub:%20https://github.com/FrederikBertelsen/Churchill%20%23OpenIDConnect%20%23Security%20%23Authentication)
+[![Share](https://img.shields.io/badge/share-1877F2?logo=facebook&logoColor=white)](https://www.facebook.com/sharer/sharer.php?u=https://github.com/FrederikBertelsen/Churchill)
+[![Share](https://img.shields.io/badge/share-FF4500?logo=reddit&logoColor=white)](https://www.reddit.com/submit?title=Check%20out%20this%20project%20on%20GitHub:%20https://github.com/FrederikBertelsen/Churchill)
+[![Share](https://img.shields.io/badge/share-0088CC?logo=telegram&logoColor=white)](https://t.me/share/url?url=https://github.com/FrederikBertelsen/Churchill&text=Check%20out%20this%20project%20on%20GitHub)
+
+## Table of Content
+- [Churchill](#churchill)
+  - [Table of Content](#table-of-content)
+  - [About](#about)
+  - [Installation](#installation)
+    - [Install - Node.js](#install---nodejs)
+  - [Install - Browser](#install---browser)
+  - [Quickstart](#quickstart)
+    - [Browser](#browser)
+    - [Server (Express example)](#server-express-example)
+    - [Loglevels](#loglevels)
+    - [Server Config Options](#server-config-options)
+    - [Custom transport](#custom-transport)
+    - [License link footer](#license-link-footer)
+
+
+## About
+
+A JS logger made for easy logging from browsers to a server endpoint
 
 Churchill will consist of two main components:
 1. **@churchill/client** - Browser-side logging library (distributed via CDN)
 2. **@churchill/server** - Node.js server component (distributed via NPM)
 
-# Installation
-## Install - Node.js
+## Installation
+### Install - Node.js
 ```bash
 npm i churchill-logger
 ```
@@ -25,7 +48,6 @@ Simply add this tag to
 <script src="https://unpkg.com/churchill-client@latest/dist/churchill.min.js"></script>
 ```
 
-# Using
 
 ## Quickstart
 
@@ -66,7 +88,24 @@ app.post('/logs', (req, res) => {
 })
 ```
 > [!NOTE]  
-> Check our examples for other frameworks
+> Check our [examples folder](https://github.com/FrederikBertelsen/Churchill/tree/main/examples) for other framework examples
 
 
 This will then start logging messages from the browser into the servers terminal
+
+### Loglevels
+
+
+### Server Config Options
+```javascript
+// Configure server-side logger with transports
+const logger = churchill.create({
+  level: 'debug',
+  transports: [
+    new churchill.transports.Console(),
+    new churchill.transports.File({ filename: 'logs/app.log' })
+  ]
+});
+```
+### Custom transport
+### License link footer
