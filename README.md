@@ -45,7 +45,7 @@
 - [Server Config Options](#server-config-options)
 - [Transports](#transports)
   - [Custom Transport](#custom-transport)
-  - [License](#license)
+- [License](#license)
 
 
 ## About
@@ -212,5 +212,5 @@ const logger = churchill.create({
 });
 ```
 
-### License
+## License
 This project is licensed under a modified MIT License - check [LICENSE](/LICENSE) for details.
