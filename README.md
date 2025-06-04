@@ -52,7 +52,7 @@
 
 A JS logger made for easy logging from browsers to a server endpoint
 
-Churchill will consist of two main components:
+Churchill consists of two main components:
 1. **@churchill/client** - Browser-side logging library (distributed via CDN)
 2. **@churchill/server** - Node.js server component (distributed via NPM)
 
