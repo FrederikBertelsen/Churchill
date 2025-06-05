@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <>
       <div className="page">
-        <h1>Churchill Test Page</h1>
+        <h1>Churchill Test Page (Next.js)</h1>
 
         <h2>Send Log Messages</h2>
         <div className="input-section">
