@@ -33,7 +33,6 @@
 </p>
 
 ## Table of Content
-- [Table of Content](#table-of-content)
 - [About](#about)
 - [Installation](#installation)
   - [Install - Node.js](#install---nodejs)
