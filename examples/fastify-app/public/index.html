@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Churchill Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-trace {
+            background-color: #f0f0f0;
+            color: #6c757d;
+        }
+
+        .btn-debug {
+            background-color: #e2e3e5;
+            color: #383d41;
+        }
+
+        .btn-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .btn-warn {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .btn-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .btn-fatal {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-fail {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        #log-area {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .custom-message {
+            width: 300px;
+            padding: 8px;
+            margin-right: 10px;
+        }
+
+        .input-toggle {
+            margin: 10px 0;
+        }
+
+        #json-input {
+            width: 100%;
+            height: 100px;
+            font-family: monospace;
+            margin-bottom: 10px;
+            padding: 8px;
+        }
+
+        .input-section {
+            margin-bottom: 15px;
+        }
+
+        .json-error {
+            color: red;
+            font-size: 0.9em;
+        }
+
+        .log-object {
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Churchill Test Page (Fastify)</h1>
+
+    <h2>Send Log Messages</h2>
+    <div class="input-section">
+        <div class="input-toggle">
+            <label>
+                <input type="radio" name="input-type" value="string" checked> String Message
+            </label>
+            <label>
+                <input type="radio" name="input-type" value="object"> JavaScript Object
+            </label>
+        </div>
+
+        <div id="string-input-container">
+            <input type="text" id="custom-message" class="custom-message" placeholder="Enter a custom message...">
+        </div>
+
+        <div id="object-input-container" style="display: none;">
+            <p>Enter JSON object:</p>
+            <textarea id="json-input">{
+    "user": "Frederik B.",
+    "action": "login",
+    "details": {
+        "browser": "Chrome",
+        "successful": true
+    }
+}</textarea>
+            <div id="json-error" class="json-error"></div>
+        </div>
+    </div>
+
+    <div>
+        <button class="btn btn-trace" onclick="sendLog('trace')">Trace</button>
+        <button class="btn btn-debug" onclick="sendLog('debug')">Debug</button>
+        <button class="btn btn-info" onclick="sendLog('info')">Info</button>
+        <button class="btn btn-warn" onclick="sendLog('warn')">Warn</button>
+        <button class="btn btn-error" onclick="sendLog('error')">Error</button>
+    </div>
+
+    <h2>Log History</h2>
+    <div id="log-area"></div>
+
+    <script src="https://unpkg.com/churchill-client@latest/dist/churchill.min.js"></script>
+
+    <script>
+        const logger = Churchill.create();
+        logger.config({
+            serverUrl: 'http://localhost:3000/logs',
+            console: true,
+            level: 'trace',
+            useragent: true,
+        });
+
+        // Log level values from Churchill
+        const LOG_LEVELS = {
+            "error": 10,
+            "warn": 20,
+            "info": 30,
+            "debug": 40,
+            "trace": 50
+        };
+
+        // Set up input type toggle
+        document.querySelectorAll('input[name="input-type"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                document.getElementById('string-input-container').style.display =
+                    this.value === 'string' ? 'block' : 'none';
+                document.getElementById('object-input-container').style.display =
+                    this.value === 'object' ? 'block' : 'none';
+            });
+        });
+
+        function sendLog(level) {
+            const inputType = document.querySelector('input[name="input-type"]:checked').value;
+            let payload;
+
+            if (inputType === 'string') {
+                payload = document.getElementById('custom-message').value ||
+                    `This is a ${level} message at ${new Date().toLocaleTimeString()}`;
+            } else {
+                const jsonText = document.getElementById('json-input').value;
+                try {
+                    payload = JSON.parse(jsonText);
+                    document.getElementById('json-error').textContent = '';
+                } catch (e) {
+                    document.getElementById('json-error').textContent = `Invalid JSON: ${e.message}`;
+                    return;
+                }
+            }
+
+            // Check if this log level would be processed based on the current logger level
+            const willBeSent = LOG_LEVELS[level] <= LOG_LEVELS[logger.level];
+
+            switch (level) {
+                case 'trace':
+                    logger.trace(payload);
+                    break;
+                case 'debug':
+                    logger.debug(payload);
+                    break;
+                case 'info':
+                    logger.info(payload);
+                    break;
+                case 'warn':
+                    logger.warn(payload);
+                    break;
+                case 'error':
+                    logger.error(payload);
+                    break;
+                default:
+                    console.error('Unknown log level:', level);
+                    return;
+            }
+
+            addLogEntry(payload, level, willBeSent);
+        }
+
+        function addLogEntry(payload, level, sent) {
+            const logArea = document.getElementById('log-area');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${level}`;
+
+            const status = sent ? "Sent" : "Not sent";
+
+            if (typeof payload === 'object') {
+                entry.innerHTML = `<div>${status} [${level}]:</div>
+                                 <div class="log-object">${JSON.stringify(payload, null, 2)}</div>`;
+            } else {
+                entry.textContent = `${status} [${level}]: ${payload}`;
+            }
+
+            logArea.prepend(entry);
+        }
+    </script>
+</body>
+
+</html>
