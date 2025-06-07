@@ -181,6 +181,15 @@ const logger = churchill.create({
 ### DuckDB Transport
 Logs to a DuckDB database for structured storage and querying.
 
+> [!NOTE]
+> The DuckDB transport is only available if you have installed the `duckdb` package. If not installed, Churchill will work normally but the DuckDB transport won't be available.
+
+**Installation for DuckDB:**
+```bash
+npm install duckdb
+```
+
+**Usage:**
 ```javascript
 const logger = churchill.create({
   level: 'info',
@@ -191,11 +200,6 @@ const logger = churchill.create({
     })
   ]
 });
-```
-
-**Installation for DuckDB:**
-```bash
-npm install duckdb
 ```
 
 The DuckDB transport creates a table with the following schema:

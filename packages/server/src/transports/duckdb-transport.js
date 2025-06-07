@@ -1,9 +1,16 @@
 'use strict';
 
 const Transport = require('./transport');
-const duckdb = require('duckdb');
 const path = require('path');
 const fs = require('fs');
+
+// Check if the duckdb package is available
+let duckdb;
+try {
+    duckdb = require('duckdb');
+} catch (err) {
+    throw new Error('Churchill DuckDBTransport requires the "duckdb" package. Install it with: npm install duckdb');
+}
 
 class DuckDBTransport extends Transport {
     constructor(options = {}) {
