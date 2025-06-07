@@ -46,6 +46,7 @@
 - [Transports](#transports)
   - [Console Transport](#console-transport)
   - [File Transport](#file-transport)
+    - [Logrotation](#logrotation)
   - [DuckDB Transport](#duckdb-transport)
   - [Using Multiple Transports](#using-multiple-transports)
   - [Custom Transport](#custom-transport)
@@ -177,6 +178,23 @@ const logger = churchill.create({
   ]
 });
 ```
+#### Logrotation
+The file transport can also be used with logrotation and compression it can be enabled as such
+```JS
+const logger = churchill.create({
+  level: 'info',
+  transports: [
+    new churchill.transports.File({ 
+      filename: 'logs/app.log',
+      logRotation: true, //Enables log rotation
+      compress: true, //Enables compression of the old file when you rotate to a new one
+      maxsize: 10 * 1024 * 1024,//Max logsize before rotation, 10MB by default
+      rotateDaily: true, //Enables daily log rotations
+      })
+  ]
+});
+```
+
 
 ### DuckDB Transport
 Logs to a DuckDB database for structured storage and querying.
