@@ -33,6 +33,7 @@
 </p>
 
 ## Table of Content
+- [Table of Content](#table-of-content)
 - [About](#about)
 - [Installation](#installation)
   - [Install - Node.js](#install---nodejs)
@@ -43,6 +44,10 @@
 - [Loglevels](#loglevels)
 - [Server Config Options](#server-config-options)
 - [Transports](#transports)
+  - [Console Transport](#console-transport)
+  - [File Transport](#file-transport)
+  - [DuckDB Transport](#duckdb-transport)
+  - [Using Multiple Transports](#using-multiple-transports)
   - [Custom Transport](#custom-transport)
 - [License](#license)
 
@@ -147,9 +152,11 @@ const logger = churchill.create({
 });
 ```
 ## Transports
-Churchill uses transports to determine where logs are sent. The library comes with two built-in transports:
+Churchill uses transports to determine where logs are sent. The library comes with built-in transports:
 
-Using the Console transport (default):
+### Console Transport
+Logs to the terminal/console with formatted output (default).
+
 ```javascript
 const logger = churchill.create({
   level: 'debug',
@@ -159,7 +166,9 @@ const logger = churchill.create({
 });
 ```
 
-Using the File transport:
+### File Transport
+Logs to a file in JSON format.
+
 ```javascript
 const logger = churchill.create({
   level: 'info',
@@ -169,13 +178,43 @@ const logger = churchill.create({
 });
 ```
 
-Using multiple transports:
+### DuckDB Transport
+Logs to a DuckDB database for structured storage and querying.
+
+```javascript
+const logger = churchill.create({
+  level: 'info',
+  transports: [
+    new churchill.transports.DuckDB({
+      database: 'logs/logs.duckdb',
+      tableName: 'churchill_logs'
+    })
+  ]
+});
+```
+
+**Installation for DuckDB:**
+```bash
+npm install duckdb
+```
+
+The DuckDB transport creates a table with the following schema:
+- `id` - Auto-incrementing primary key
+- `timestamp` - Log timestamp with timezone
+- `level` - Log level (error, warn, info, etc.)
+- `message` - Extracted log message
+- `data` - JSON data payload
+- `metadata` - JSON metadata
+- `created_at` - Unix timestamp
+
+### Using Multiple Transports
 ```javascript
 const logger = churchill.create({
   level: 'debug',
   transports: [
     new churchill.transports.Console({ level: 'error' }), // Only errors to console
-    new churchill.transports.File({ filename: 'logs/app.log' }) // All logs to file
+    new churchill.transports.File({ filename: 'logs/app.log' }), // All logs to file
+    new churchill.transports.DuckDB({ database: 'logs/analytics.duckdb' }) // All logs to database
   ]
 });
 ```
@@ -186,28 +225,25 @@ You can create your own transports, by extending from the `Churchill.Transport` 
 You need to overwrite the `Log()` function.
 
 ```javascript
-class DatabaseTransport extends churchill.Transport {
+class CustomTransport extends churchill.Transport {
   constructor(options) {
     super(options);
-    // Initialize your database connection
-    this.db = options.db;
+
+    // # Initialize your logger here #
+
   }
   
   log(level, data, metadata) {
-    // Implement database logging logic
-    this.db.collection('logs').insertOne({
-      level,
-      message: data,
-      metadata,
-      timestamp: new Date()
-    });
+
+    // # Implement logging logic here #
+
   }
 }
 ```
 You can then use it like the other transports, by adding it to the transport array argument.
 ```javascript
 const logger = churchill.create({
-  transports: [new DatabaseTransport({ db: myDatabaseConnection })]
+  transports: [new CustomTransport()]
 });
 ```
 
