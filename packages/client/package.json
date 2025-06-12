@@ -1,6 +1,6 @@
 {
     "name": "churchill-client",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "main": "dist/index.js",
     "module": "dist/index.esm.js",
     "unpkg": "dist/churchill.min.js",
