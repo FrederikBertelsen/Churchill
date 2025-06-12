@@ -5,8 +5,8 @@
 <h4 align="center">A JS logger made for easy logging from browsers to a server endpoint.</h4>
 
 <p align="center">
-    <a href="https://www.npmjs.com/package/churchill-client">
-        <img src="https://img.shields.io/npm/d18m/churchill-client?label=NPM%20Installs" alt="NPM Client Downloads">
+    <a href="https://www.npmjs.com/package/churchill-logger">
+        <img src="https://img.shields.io/npm/d18m/churchill-logger?label=NPM%20Installs" alt="NPM Client Downloads">
     </a>
     <a href="https://github.com/FrederikBertelsen/Churchill/issues">
         <img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat&labelColor=gray&color=blue" alt="Contributions Welcome">
